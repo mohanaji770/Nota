@@ -1,0 +1,46 @@
+export type BlockType = "paragraph" | "heading" | "list" | "check";
+
+export type NoteBlock = {
+  id: string;
+  type: BlockType;
+  text: string;
+  checked?: boolean;
+};
+
+export type Folder = {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Note = {
+  id: string;
+  title: string;
+  blocks: NoteBlock[];
+  folderId: string;
+  pinned: boolean;
+  archived: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  syncState: "pending" | "synced";
+  remoteUpdatedAt?: string;
+};
+
+export type SyncQueueItem = {
+  id: string;
+  noteId: string;
+  action: "upsert" | "delete";
+  createdAt: string;
+};
+
+export type ThemePreference = "system" | "light" | "dark";
+
+export type NotesExport = {
+  version: 1;
+  exportedAt: string;
+  notes: Note[];
+  folders: Folder[];
+};

@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+dist
+output
+.vercel
+*.log
+.env*
+!.env.example
+Thumbs.db
