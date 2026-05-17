@@ -63,7 +63,7 @@ export function InstallPrompt() {
   if (installed || !ready) return null;
 
   return (
-    <section className="mt-5 rounded-[24px] bg-[#202020] p-3 ring-1 ring-white/[0.07]" aria-label="تثبيت التطبيق">
+    <section className="mt-5 rounded-[24px] bg-black/[0.045] p-3 ring-1 ring-black/[0.07] dark:bg-[#202020] dark:ring-white/[0.07]" aria-label="تثبيت التطبيق">
       <div className="flex items-center gap-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/[0.075] text-[#ff6f61]">
           <Smartphone size={19} aria-hidden />

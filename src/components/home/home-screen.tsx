@@ -56,6 +56,10 @@ export function HomeScreen() {
   const today = useMemo(() => new Date(), []);
   const weekDays = useMemo(() => buildWeekDays(), []);
 
+  useEffect(() => {
+    router.prefetch("/settings");
+  }, [router]);
+
   const notes = useMemo(
     () =>
       allNotes.filter((note) => {
@@ -87,7 +91,7 @@ export function HomeScreen() {
   };
 
   return (
-    <main className="mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-x-hidden bg-[#151515] px-6 pb-[calc(92px+var(--safe-bottom))] pt-[calc(22px+var(--safe-top))] text-[#f7f7f2]">
+    <main className="mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-x-hidden bg-[#f7f7f2] px-6 pb-[calc(92px+var(--safe-bottom))] pt-[calc(22px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
       <header className="shrink-0">
         <div className="flex items-start justify-between gap-5">
           <div>

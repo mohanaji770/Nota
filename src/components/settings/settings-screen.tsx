@@ -49,8 +49,8 @@ export function SettingsScreen() {
   };
 
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-[430px] bg-[#151515] px-5 pb-[calc(28px+var(--safe-bottom))] pt-[calc(10px+var(--safe-top))] text-[#f7f7f2]">
-      <header className="sticky top-0 z-20 -mx-5 bg-[#151515]/92 px-3 pt-[calc(6px+var(--safe-top))] backdrop-blur-xl">
+    <main className="mx-auto min-h-[100dvh] w-full max-w-[430px] bg-[#f7f7f2] px-5 pb-[calc(28px+var(--safe-bottom))] pt-[calc(10px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
+      <header className="sticky top-0 z-20 -mx-5 bg-[#f7f7f2]/92 px-3 pt-[calc(6px+var(--safe-top))] backdrop-blur-xl dark:bg-[#151515]/92">
         <div className="flex min-h-14 items-center gap-2">
           <IconButton label="رجوع" onClick={() => router.push("/")} className="text-white/58">
             <ArrowRight size={22} />
@@ -139,7 +139,7 @@ export function SettingsScreen() {
                 onChange={(event) => setAppSettings({ supabaseUrl: event.target.value })}
                 placeholder="https://xxxxx.supabase.co"
                 dir="ltr"
-                className="h-11 w-full rounded-2xl bg-[#151515] px-3 text-left text-[0.76rem] text-white/80 outline-none ring-1 ring-white/[0.08] placeholder:text-white/22"
+                className="h-11 w-full rounded-2xl bg-black/[0.045] px-3 text-left text-[0.76rem] text-black/80 outline-none ring-1 ring-black/[0.08] placeholder:text-black/25 dark:bg-[#151515] dark:text-white/80 dark:ring-white/[0.08] dark:placeholder:text-white/22"
               />
             </label>
             <label className="block">
@@ -149,7 +149,7 @@ export function SettingsScreen() {
                 onChange={(event) => setAppSettings({ supabaseAnonKey: event.target.value })}
                 placeholder="eyJ..."
                 dir="ltr"
-                className="h-11 w-full rounded-2xl bg-[#151515] px-3 text-left text-[0.76rem] text-white/80 outline-none ring-1 ring-white/[0.08] placeholder:text-white/22"
+                className="h-11 w-full rounded-2xl bg-black/[0.045] px-3 text-left text-[0.76rem] text-black/80 outline-none ring-1 ring-black/[0.08] placeholder:text-black/25 dark:bg-[#151515] dark:text-white/80 dark:ring-white/[0.08] dark:placeholder:text-white/22"
               />
             </label>
           </div>

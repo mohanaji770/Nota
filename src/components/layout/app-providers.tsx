@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useNotesStore } from "@/services/notes-store";
 import { PwaRegistrar } from "./pwa-registrar";
+import { PwaUpdatePrompt } from "./pwa-update-prompt";
 import { ThemeRuntime } from "./theme-runtime";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
@@ -17,6 +18,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <>
       <ThemeRuntime />
       <PwaRegistrar />
+      <PwaUpdatePrompt />
       {children}
     </>
   );

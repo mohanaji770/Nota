@@ -13,6 +13,7 @@ export function NoteCard({ note }: { note: Note }) {
     <article className="border-b border-dashed border-white/[0.055]">
       <button
         type="button"
+        onPointerDown={() => router.prefetch(`/note/${note.id}`)}
         onClick={() => router.push(`/note/${note.id}`)}
         className="flex min-h-[70px] w-full items-center gap-3 py-3 text-right transition duration-200 ease-material active:scale-[0.99]"
       >

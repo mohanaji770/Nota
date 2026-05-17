@@ -135,15 +135,15 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
 
   if (!draft) {
     return (
-      <main className="grid min-h-[100svh] place-items-center bg-[#151515] text-sm font-medium text-white/45">
+      <main className="grid min-h-[100dvh] place-items-center bg-[#f7f7f2] text-sm font-medium text-black/45 dark:bg-[#151515] dark:text-white/45">
         تحميل الملاحظة...
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex min-h-[100svh] w-full max-w-[620px] flex-col bg-[#151515] pb-[calc(92px+var(--safe-bottom))] pt-[var(--safe-top)] text-white">
-      <header className="sticky top-0 z-20 border-b border-white/[0.055] bg-[#151515]/90 px-3 pt-[calc(8px+var(--safe-top))] backdrop-blur-xl">
+    <main className="mx-auto flex min-h-[100dvh] w-full max-w-[620px] flex-col bg-[#f7f7f2] pb-[calc(92px+var(--safe-bottom))] pt-[var(--safe-top)] text-[#151515] dark:bg-[#151515] dark:text-white">
+      <header className="sticky top-0 z-20 border-b border-black/[0.055] bg-[#f7f7f2]/90 px-3 pt-[calc(8px+var(--safe-top))] backdrop-blur-xl dark:border-white/[0.055] dark:bg-[#151515]/90">
         <div className="flex min-h-14 items-center gap-1">
           <IconButton label="رجوع" onClick={() => router.push("/")} className="text-white/58">
             <ArrowRight size={22} />
@@ -166,7 +166,7 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
       </header>
 
       {menuOpen ? (
-        <div className="fixed right-[max(14px,calc((100vw-620px)/2+14px))] top-[calc(70px+var(--safe-top))] z-30 w-52 rounded-[24px] bg-[#202020]/95 p-2 text-[0.8rem] font-semibold text-white/76 shadow-2xl ring-1 ring-white/[0.07] backdrop-blur-xl">
+        <div className="fixed right-[max(14px,calc((100vw-620px)/2+14px))] top-[calc(70px+var(--safe-top))] z-30 w-52 rounded-[24px] bg-[#f7f7f2]/95 p-2 text-[0.8rem] font-semibold text-black/76 shadow-2xl ring-1 ring-black/[0.07] backdrop-blur-xl dark:bg-[#202020]/95 dark:text-white/76 dark:ring-white/[0.07]">
           <button
             type="button"
             onClick={() => addQuickBlock("paragraph")}
@@ -219,7 +219,7 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
         </div>
       </section>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[620px] bg-[#151515]/88 px-5 pb-[calc(14px+var(--safe-bottom))] pt-3 backdrop-blur-xl">
+      <footer className="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[620px] bg-[#f7f7f2]/88 px-5 pb-[calc(14px+var(--safe-bottom))] pt-3 backdrop-blur-xl dark:bg-[#151515]/88">
         <div className="mx-auto flex max-w-[360px] items-center justify-between rounded-full bg-white/[0.105] px-2 py-1 ring-1 ring-white/[0.075]">
           <IconButton
             label="تراجع"

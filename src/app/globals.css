@@ -93,22 +93,47 @@
 html {
   direction: rtl;
   scroll-behavior: smooth;
-  background: #151515;
+  background: #f7f7f2;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background: #151515;
+  background: #f7f7f2;
   color: #171613;
   font-family: var(--app-font-family);
   text-rendering: optimizeLegibility;
 }
 
+.dark {
+  background: #151515;
+}
+
 .dark body {
   background: #151515;
   color: #f7f7f5;
+}
+
+html:not(.dark) [class*="text-white"] {
+  color: rgba(21, 21, 21, 0.78);
+}
+
+html:not(.dark) [class*="bg-white/"] {
+  background-color: rgba(21, 21, 21, 0.055);
+}
+
+html:not(.dark) [class*="ring-white/"] {
+  --tw-ring-color: rgba(21, 21, 21, 0.08);
+}
+
+html:not(.dark) [class*="border-white/"] {
+  border-color: rgba(21, 21, 21, 0.08);
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: rgba(21, 21, 21, 0.3);
 }
 
 button,

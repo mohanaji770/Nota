@@ -93,7 +93,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   async createNote(folderId) {
     const note = createEmptyNote(folderId || get().activeFolderId || DEFAULT_FOLDER_ID);
     set((state) => ({ notes: updateNoteInList([note, ...state.notes], note) }));
-    await saveNote(note);
+    void saveNote(note).catch(() => undefined);
     return note;
   },
 

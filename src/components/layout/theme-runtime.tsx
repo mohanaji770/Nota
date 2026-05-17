@@ -15,6 +15,7 @@ export function ThemeRuntime() {
       const shouldUseDark = theme === "dark" || (theme === "system" && media.matches);
       root.classList.toggle("dark", shouldUseDark);
       root.style.colorScheme = shouldUseDark ? "dark" : "light";
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", shouldUseDark ? "#151515" : "#f7f7f2");
     };
 
     apply();
