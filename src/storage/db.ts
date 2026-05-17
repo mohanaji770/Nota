@@ -1,9 +1,9 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import { DEFAULT_FOLDERS } from "@/lib/constants";
 import { nowIso } from "@/lib/date";
-import type { Folder, Note, SyncQueueItem, ThemePreference } from "@/types/notes";
+import type { AppSettings, Folder, Note, SyncQueueItem, ThemePreference } from "@/types/notes";
 
-type SettingValue = string | number | boolean | null;
+type SettingValue = string | number | boolean | null | AppSettings;
 
 interface NotesDatabase extends DBSchema {
   notes: {

@@ -1,6 +1,7 @@
 import { createId } from "@/lib/id";
 import { nowIso } from "@/lib/date";
-import type { Folder, Note, NotesExport, SyncQueueItem, ThemePreference } from "@/types/notes";
+import { DEFAULT_APP_SETTINGS } from "@/lib/constants";
+import type { AppSettings, Folder, Note, NotesExport, SyncQueueItem, ThemePreference } from "@/types/notes";
 import { ensureDefaultFolders, getDb, getSetting, getThemeSetting, setSetting } from "./db";
 
 export async function listFolders(): Promise<Folder[]> {
@@ -102,6 +103,22 @@ export async function loadTheme() {
 
 export async function saveTheme(value: ThemePreference) {
   await setSetting("theme", value);
+}
+
+export async function loadAppSettings(): Promise<AppSettings> {
+  const settings = await getSetting<AppSettings>("appSettings", DEFAULT_APP_SETTINGS);
+  return {
+    ...DEFAULT_APP_SETTINGS,
+    ...settings,
+    noteFontScale: Math.min(1.25, Math.max(0.85, Number(settings.noteFontScale || 1)))
+  };
+}
+
+export async function saveAppSettings(value: AppSettings) {
+  await setSetting("appSettings", {
+    ...value,
+    noteFontScale: Math.min(1.25, Math.max(0.85, Number(value.noteFontScale || 1)))
+  });
 }
 
 export async function exportNotes(): Promise<NotesExport> {

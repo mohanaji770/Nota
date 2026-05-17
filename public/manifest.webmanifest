@@ -1,17 +1,17 @@
 {
-  "name": "ملاحظات أندرويد",
-  "short_name": "ملاحظات",
-  "description": "تطبيق ملاحظات عربي سريع يعمل بدون إنترنت.",
+  "name": "Nota - نوتة",
+  "short_name": "Nota",
+  "description": "نوتة تطبيق ملاحظات عربي سريع يعمل بدون إنترنت.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": ["standalone"],
   "orientation": "portrait-primary",
   "dir": "rtl",
   "lang": "ar",
-  "background_color": "#f7f7f5",
-  "theme_color": "#257244",
+  "background_color": "#151515",
+  "theme_color": "#151515",
   "categories": ["productivity", "utilities"],
   "icons": [
     {
@@ -39,6 +39,13 @@
       "short_name": "جديدة",
       "description": "إنشاء ملاحظة جديدة",
       "url": "/?action=new",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "الإعدادات",
+      "short_name": "إعدادات",
+      "description": "فتح إعدادات نوتة",
+      "url": "/settings",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

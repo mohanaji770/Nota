@@ -41,27 +41,23 @@ export function EditorBlock({ block, onChange, onEnter, onRemove }: EditorBlockP
   };
 
   return (
-    <div
-      className={cn(
-        "group flex min-h-11 items-start gap-2 rounded-[18px] px-0.5 py-0.5 transition duration-150"
-      )}
-    >
+    <div className="group flex min-h-8 items-start gap-2 rounded-[14px] px-0.5 py-0 transition duration-150">
       {block.type === "check" ? (
         <button
           type="button"
           aria-label={block.checked ? "مهمة مكتملة" : "مهمة غير مكتملة"}
           onClick={() => onChange(block.id, { checked: !block.checked })}
           className={cn(
-            "focus-ring mt-1.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border transition active:scale-95",
+            "focus-ring mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full border transition active:scale-95",
             block.checked
               ? "border-white/0 bg-[#2f8f56] text-white"
               : "border-white/16 bg-white/[0.035] text-transparent"
           )}
         >
-          <Check size={15} />
+          <Check size={12} />
         </button>
       ) : block.type === "list" ? (
-        <span className="mt-3 grid h-6 w-8 shrink-0 place-items-center text-white/30">
+        <span className="mt-2 grid h-6 w-6 shrink-0 place-items-center text-white/30">
           <Minus size={14} />
         </span>
       ) : null}
@@ -75,10 +71,10 @@ export function EditorBlock({ block, onChange, onEnter, onRemove }: EditorBlockP
         rows={1}
         placeholder={block.type === "heading" ? "عنوان" : block.type === "check" ? "مهمة" : "اكتب هنا"}
         className={cn(
-          "min-h-11 flex-1 overflow-hidden bg-transparent py-2 text-right outline-none placeholder:text-white/24",
+          "min-h-8 flex-1 overflow-hidden bg-transparent py-1 text-right outline-none placeholder:text-white/24",
           block.type === "heading"
-            ? "text-xl font-semibold leading-8 text-white/92"
-            : "text-[0.98rem] font-normal leading-7 text-white/78",
+            ? "text-[calc(1.08rem*var(--note-font-scale))] font-semibold leading-7 text-white/92"
+            : "text-[calc(0.94rem*var(--note-font-scale))] font-normal leading-6 text-white/78",
           block.checked && "text-white/34 line-through"
         )}
       />

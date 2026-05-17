@@ -38,6 +38,15 @@ export type SyncQueueItem = {
 
 export type ThemePreference = "system" | "light" | "dark";
 
+export type AppFontFamily = "cairo" | "amiri";
+
+export type AppSettings = {
+  fontFamily: AppFontFamily;
+  noteFontScale: number;
+  supabaseUrl: string;
+  supabaseAnonKey: string;
+};
+
 export type NotesExport = {
   version: 1;
   exportedAt: string;

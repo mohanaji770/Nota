@@ -11,17 +11,20 @@ import {
   getDeviceId,
   getLastSyncAt,
   importNotes as importIntoStorage,
+  loadAppSettings,
   listFolders,
   listNotes,
   loadTheme,
   markNotesSynced,
+  saveAppSettings,
   saveNote,
   saveRemoteMergedNotes,
   saveTheme,
   setLastSyncAt
 } from "@/storage/repository";
 import { isSupabaseConfigured, syncWithSupabase } from "@/services/sync/supabase";
-import type { Folder, Note, NotesExport, ThemePreference } from "@/types/notes";
+import { DEFAULT_APP_SETTINGS } from "@/lib/constants";
+import type { AppSettings, Folder, Note, NotesExport, ThemePreference } from "@/types/notes";
 
 type SyncStatus = "idle" | "local" | "syncing" | "synced" | "error";
 
@@ -32,6 +35,7 @@ type NotesState = {
   activeFolderId: string;
   hydrated: boolean;
   theme: ThemePreference;
+  settings: AppSettings;
   syncStatus: SyncStatus;
   syncError: string | null;
   hydrate: () => Promise<void>;
@@ -43,6 +47,7 @@ type NotesState = {
   setQuery: (query: string) => void;
   setFolder: (folderId: string) => void;
   setTheme: (theme: ThemePreference) => Promise<void>;
+  setAppSettings: (settings: Partial<AppSettings>) => Promise<void>;
   syncNow: () => Promise<void>;
   exportAll: () => Promise<NotesExport>;
   importAll: (payload: NotesExport) => Promise<void>;
@@ -64,17 +69,24 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   activeFolderId: DEFAULT_FOLDER_ID,
   hydrated: false,
   theme: "system",
+  settings: DEFAULT_APP_SETTINGS,
   syncStatus: isSupabaseConfigured() ? "idle" : "local",
   syncError: null,
 
   async hydrate() {
-    const [notes, folders, theme] = await Promise.all([listNotes(), listFolders(), loadTheme()]);
+    const [notes, folders, theme, settings] = await Promise.all([
+      listNotes(),
+      listFolders(),
+      loadTheme(),
+      loadAppSettings()
+    ]);
     set({
       notes,
       folders,
       theme,
+      settings,
       hydrated: true,
-      syncStatus: isSupabaseConfigured() ? "idle" : "local"
+      syncStatus: isSupabaseConfigured(settings) ? "idle" : "local"
     });
   },
 
@@ -137,8 +149,23 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     await saveTheme(theme);
   },
 
+  async setAppSettings(nextSettings) {
+    const settings = {
+      ...get().settings,
+      ...nextSettings
+    };
+    set({ settings });
+    await saveAppSettings(settings);
+  },
+
   async syncNow() {
-    if (!isSupabaseConfigured()) {
+    const settings = get().settings;
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      set({ syncStatus: isSupabaseConfigured(settings) ? "idle" : "local", syncError: null });
+      return;
+    }
+
+    if (!isSupabaseConfigured(settings)) {
       set({ syncStatus: "local", syncError: null });
       return;
     }
@@ -151,7 +178,13 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         getLastSyncAt(),
         listNotes({ includeArchived: true, includeDeleted: true })
       ]);
-      const result = await syncWithSupabase({ ownerId, outbox, lastSyncAt, notes: allNotes });
+      const result = await syncWithSupabase({
+        ownerId,
+        outbox,
+        lastSyncAt,
+        notes: allNotes,
+        credentials: settings
+      });
 
       if (result.enabled) {
         await Promise.all([

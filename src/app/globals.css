@@ -66,10 +66,20 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Amiri Quran";
+  src: url("/fonts/AmiriQuran-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-font-family: "Cairo", Tahoma, Arial, sans-serif;
+  --note-font-scale: 1;
 }
 
 .dark {
@@ -83,25 +93,21 @@
 html {
   direction: rtl;
   scroll-behavior: smooth;
-  background: #f7f7f5;
+  background: #151515;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(47, 143, 86, 0.08), transparent 32rem),
-    #f7f7f5;
+  background: #151515;
   color: #171613;
-  font-family: "Cairo", Tahoma, Arial, sans-serif;
+  font-family: var(--app-font-family);
   text-rendering: optimizeLegibility;
 }
 
 .dark body {
-  background:
-    radial-gradient(circle at 20% 0%, rgba(47, 143, 86, 0.12), transparent 32rem),
-    #11110f;
+  background: #151515;
   color: #f7f7f5;
 }
 

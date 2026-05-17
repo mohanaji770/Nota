@@ -1,4 +1,7 @@
-export const APP_NAME = "ملاحظات أندرويد";
+import type { AppSettings } from "@/types/notes";
+
+export const APP_NAME = "Nota";
+export const APP_NAME_AR = "نوتة";
 export const DEFAULT_FOLDER_ID = "inbox";
 export const ARCHIVE_FOLDER_ID = "archive";
 
@@ -9,3 +12,10 @@ export const DEFAULT_FOLDERS = [
 ] as const;
 
 export const AUTOSAVE_DELAY_MS = 260;
+
+export const DEFAULT_APP_SETTINGS: AppSettings = {
+  fontFamily: "cairo",
+  noteFontScale: 1,
+  supabaseUrl: "",
+  supabaseAnonKey: ""
+};

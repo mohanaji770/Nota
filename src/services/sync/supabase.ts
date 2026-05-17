@@ -13,8 +13,20 @@ type SupabaseNoteRow = {
   updated_at: string;
 };
 
-export function isSupabaseConfigured() {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+type SupabaseCredentials = {
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
+};
+
+function getSupabaseConfig(credentials?: SupabaseCredentials) {
+  const url = credentials?.supabaseUrl || process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const anonKey = credentials?.supabaseAnonKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  return { url: url.trim(), anonKey: anonKey.trim() };
+}
+
+export function isSupabaseConfigured(credentials?: SupabaseCredentials) {
+  const config = getSupabaseConfig(credentials);
+  return Boolean(config.url && config.anonKey);
 }
 
 function toRow(note: Note, ownerId: string): SupabaseNoteRow {
@@ -53,17 +65,15 @@ export async function syncWithSupabase(input: {
   notes: Note[];
   outbox: SyncQueueItem[];
   lastSyncAt: string | null;
+  credentials?: SupabaseCredentials;
 }) {
-  if (!isSupabaseConfigured()) {
+  const config = getSupabaseConfig(input.credentials);
+  if (!isSupabaseConfigured(input.credentials)) {
     return { enabled: false as const, mergedNotes: [], syncedIds: [] };
   }
 
   const { createClient } = await import("@supabase/supabase-js");
-  const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: false } }
-  );
+  const client = createClient(config.url, config.anonKey, { auth: { persistSession: false } });
 
   const changedIds = new Set(input.outbox.map((item) => item.noteId));
   const changedNotes = input.notes.filter((note) => changedIds.has(note.id));
