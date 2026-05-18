@@ -1,7 +1,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import { DEFAULT_FOLDERS } from "@/lib/constants";
 import { nowIso } from "@/lib/date";
-import type { AppSettings, Folder, Note, SyncQueueItem, ThemePreference } from "@/types/notes";
+import type { AppSettings, Folder, Habit, Note, SyncQueueItem, ThemePreference } from "@/types/notes";
 
 type SettingValue = string | number | boolean | null | AppSettings;
 
@@ -27,6 +27,13 @@ interface NotesDatabase extends DBSchema {
       "by-note": string;
     };
   };
+  habits: {
+    key: string;
+    value: Habit;
+    indexes: {
+      "by-updated": string;
+    };
+  };
   settings: {
     key: string;
     value: SettingValue;
@@ -37,20 +44,33 @@ let dbPromise: Promise<IDBPDatabase<NotesDatabase>> | null = null;
 
 export function getDb() {
   if (!dbPromise) {
-    dbPromise = openDB<NotesDatabase>("android-notes-db", 1, {
+    dbPromise = openDB<NotesDatabase>("android-notes-db", 2, {
       upgrade(db) {
-        const notes = db.createObjectStore("notes", { keyPath: "id" });
-        notes.createIndex("by-updated", "updatedAt");
-        notes.createIndex("by-folder", "folderId");
-        notes.createIndex("by-pin", "pinned");
+        if (!db.objectStoreNames.contains("notes")) {
+          const notes = db.createObjectStore("notes", { keyPath: "id" });
+          notes.createIndex("by-updated", "updatedAt");
+          notes.createIndex("by-folder", "folderId");
+          notes.createIndex("by-pin", "pinned");
+        }
 
-        db.createObjectStore("folders", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("folders")) {
+          db.createObjectStore("folders", { keyPath: "id" });
+        }
 
-        const outbox = db.createObjectStore("outbox", { keyPath: "id" });
-        outbox.createIndex("by-created", "createdAt");
-        outbox.createIndex("by-note", "noteId");
+        if (!db.objectStoreNames.contains("outbox")) {
+          const outbox = db.createObjectStore("outbox", { keyPath: "id" });
+          outbox.createIndex("by-created", "createdAt");
+          outbox.createIndex("by-note", "noteId");
+        }
 
-        db.createObjectStore("settings");
+        if (!db.objectStoreNames.contains("habits")) {
+          const habits = db.createObjectStore("habits", { keyPath: "id" });
+          habits.createIndex("by-updated", "updatedAt");
+        }
+
+        if (!db.objectStoreNames.contains("settings")) {
+          db.createObjectStore("settings");
+        }
       }
     });
   }

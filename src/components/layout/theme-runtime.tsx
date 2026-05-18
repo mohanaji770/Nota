@@ -32,7 +32,8 @@ export function ThemeRuntime() {
 
     root.style.setProperty("--app-font-family", fontFamily);
     root.style.setProperty("--note-font-scale", String(settings.noteFontScale));
-  }, [settings.fontFamily, settings.noteFontScale]);
+    root.style.setProperty("--note-line-height-scale", String(settings.noteLineHeightScale));
+  }, [settings.fontFamily, settings.noteFontScale, settings.noteLineHeightScale]);
 
   return null;
 }

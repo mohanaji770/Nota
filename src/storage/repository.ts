@@ -1,7 +1,7 @@
 import { createId } from "@/lib/id";
 import { nowIso } from "@/lib/date";
 import { DEFAULT_APP_SETTINGS } from "@/lib/constants";
-import type { AppSettings, Folder, Note, NotesExport, SyncQueueItem, ThemePreference } from "@/types/notes";
+import type { AppSettings, Folder, Habit, Note, NotesExport, SyncQueueItem, ThemePreference } from "@/types/notes";
 import { ensureDefaultFolders, getDb, getSetting, getThemeSetting, setSetting } from "./db";
 
 export async function listFolders(): Promise<Folder[]> {
@@ -110,15 +110,33 @@ export async function loadAppSettings(): Promise<AppSettings> {
   return {
     ...DEFAULT_APP_SETTINGS,
     ...settings,
-    noteFontScale: Math.min(1.25, Math.max(0.85, Number(settings.noteFontScale || 1)))
+    noteFontScale: Math.min(1.25, Math.max(0.85, Number(settings.noteFontScale || 1))),
+    noteLineHeightScale: Math.min(1.25, Math.max(0.9, Number(settings.noteLineHeightScale || 1)))
   };
 }
 
 export async function saveAppSettings(value: AppSettings) {
   await setSetting("appSettings", {
     ...value,
-    noteFontScale: Math.min(1.25, Math.max(0.85, Number(value.noteFontScale || 1)))
+    noteFontScale: Math.min(1.25, Math.max(0.85, Number(value.noteFontScale || 1))),
+    noteLineHeightScale: Math.min(1.25, Math.max(0.9, Number(value.noteLineHeightScale || 1)))
   });
+}
+
+export async function listHabits() {
+  const db = await getDb();
+  const habits = await db.getAll("habits");
+  return habits.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+}
+
+export async function saveHabit(habit: Habit) {
+  const db = await getDb();
+  await db.put("habits", habit);
+}
+
+export async function deleteHabit(id: string) {
+  const db = await getDb();
+  await db.delete("habits", id);
 }
 
 export async function exportNotes(): Promise<NotesExport> {

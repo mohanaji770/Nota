@@ -43,8 +43,18 @@ export type AppFontFamily = "cairo" | "amiri";
 export type AppSettings = {
   fontFamily: AppFontFamily;
   noteFontScale: number;
+  noteLineHeightScale: number;
   supabaseUrl: string;
   supabaseAnonKey: string;
+};
+
+export type Habit = {
+  id: string;
+  title: string;
+  reminderTime: string | null;
+  completedDates: string[];
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type NotesExport = {

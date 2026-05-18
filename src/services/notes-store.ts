@@ -3,20 +3,24 @@
 import { create } from "zustand";
 import { DEFAULT_FOLDER_ID } from "@/lib/constants";
 import { nowIso } from "@/lib/date";
+import { createId } from "@/lib/id";
 import { createEmptyNote, deriveTitle, noteMatchesQuery } from "@/lib/notes";
 import {
   clearOutbox,
+  deleteHabit as deleteHabitFromStorage,
   drainOutbox,
   exportNotes as exportFromStorage,
   getDeviceId,
   getLastSyncAt,
   importNotes as importIntoStorage,
   loadAppSettings,
+  listHabits,
   listFolders,
   listNotes,
   loadTheme,
   markNotesSynced,
   saveAppSettings,
+  saveHabit,
   saveNote,
   saveRemoteMergedNotes,
   saveTheme,
@@ -24,12 +28,13 @@ import {
 } from "@/storage/repository";
 import { isSupabaseConfigured, syncWithSupabase } from "@/services/sync/supabase";
 import { DEFAULT_APP_SETTINGS } from "@/lib/constants";
-import type { AppSettings, Folder, Note, NotesExport, ThemePreference } from "@/types/notes";
+import type { AppSettings, Folder, Habit, Note, NotesExport, ThemePreference } from "@/types/notes";
 
 type SyncStatus = "idle" | "local" | "syncing" | "synced" | "error";
 
 type NotesState = {
   notes: Note[];
+  habits: Habit[];
   folders: Folder[];
   query: string;
   activeFolderId: string;
@@ -44,6 +49,10 @@ type NotesState = {
   deleteNote: (id: string) => Promise<void>;
   archiveNote: (id: string) => Promise<void>;
   togglePin: (id: string) => Promise<void>;
+  createHabit: (input: { title: string; reminderTime?: string | null }) => Promise<void>;
+  updateHabit: (habit: Habit) => Promise<void>;
+  deleteHabit: (id: string) => Promise<void>;
+  toggleHabitDate: (habitId: string, dateKey: string) => Promise<void>;
   setQuery: (query: string) => void;
   setFolder: (folderId: string) => void;
   setTheme: (theme: ThemePreference) => Promise<void>;
@@ -64,6 +73,7 @@ function updateNoteInList(notes: Note[], next: Note) {
 
 export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
+  habits: [],
   folders: [],
   query: "",
   activeFolderId: DEFAULT_FOLDER_ID,
@@ -74,15 +84,17 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   syncError: null,
 
   async hydrate() {
-    const [notes, folders, theme, settings] = await Promise.all([
+    const [notes, folders, habits, theme, settings] = await Promise.all([
       listNotes(),
       listFolders(),
+      listHabits(),
       loadTheme(),
       loadAppSettings()
     ]);
     set({
       notes,
       folders,
+      habits,
       theme,
       settings,
       hydrated: true,
@@ -134,6 +146,48 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const next = { ...note, pinned: !note.pinned, updatedAt: nowIso(), syncState: "pending" as const };
     set((state) => ({ notes: updateNoteInList(state.notes, next) }));
     await saveNote(next);
+  },
+
+  async createHabit(input) {
+    const timestamp = nowIso();
+    const habit: Habit = {
+      id: createId("habit"),
+      title: input.title.trim(),
+      reminderTime: input.reminderTime || null,
+      completedDates: [],
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+    if (!habit.title) return;
+    set((state) => ({ habits: [habit, ...state.habits] }));
+    await saveHabit(habit);
+  },
+
+  async updateHabit(habit) {
+    const next = { ...habit, updatedAt: nowIso() };
+    set((state) => ({ habits: state.habits.map((item) => (item.id === next.id ? next : item)) }));
+    await saveHabit(next);
+  },
+
+  async deleteHabit(id) {
+    set((state) => ({ habits: state.habits.filter((habit) => habit.id !== id) }));
+    await deleteHabitFromStorage(id);
+  },
+
+  async toggleHabitDate(habitId, dateKey) {
+    const habit = get().habits.find((item) => item.id === habitId);
+    if (!habit) return;
+
+    const exists = habit.completedDates.includes(dateKey);
+    const next: Habit = {
+      ...habit,
+      completedDates: exists
+        ? habit.completedDates.filter((item) => item !== dateKey)
+        : [...habit.completedDates, dateKey],
+      updatedAt: nowIso()
+    };
+    set((state) => ({ habits: state.habits.map((item) => (item.id === habitId ? next : item)) }));
+    await saveHabit(next);
   },
 
   setQuery(query) {

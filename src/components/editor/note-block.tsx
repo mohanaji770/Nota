@@ -73,8 +73,8 @@ export function EditorBlock({ block, onChange, onEnter, onRemove }: EditorBlockP
         className={cn(
           "min-h-8 flex-1 overflow-hidden bg-transparent py-1 text-right outline-none placeholder:text-white/24",
           block.type === "heading"
-            ? "text-[calc(1.08rem*var(--note-font-scale))] font-semibold leading-7 text-white/92"
-            : "text-[calc(0.94rem*var(--note-font-scale))] font-normal leading-6 text-white/78",
+            ? "text-[calc(1.08rem*var(--note-font-scale))] font-semibold leading-[calc(1.75rem*var(--note-line-height-scale))] text-white/92"
+            : "text-[calc(0.94rem*var(--note-font-scale))] font-normal leading-[calc(1.5rem*var(--note-line-height-scale))] text-white/78",
           block.checked && "text-white/34 line-through"
         )}
       />

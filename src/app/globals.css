@@ -80,6 +80,7 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-font-family: "Cairo", Tahoma, Arial, sans-serif;
   --note-font-scale: 1;
+  --note-line-height-scale: 1;
 }
 
 .dark {

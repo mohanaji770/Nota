@@ -16,6 +16,7 @@ export const AUTOSAVE_DELAY_MS = 260;
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   fontFamily: "cairo",
   noteFontScale: 1,
+  noteLineHeightScale: 1,
   supabaseUrl: "",
   supabaseAnonKey: ""
 };

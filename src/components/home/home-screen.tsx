@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search, Settings2 } from "lucide-react";
+import { ListChecks, Plus, Search, Settings2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { DEFAULT_FOLDER_ID } from "@/lib/constants";
@@ -58,6 +58,7 @@ export function HomeScreen() {
 
   useEffect(() => {
     router.prefetch("/settings");
+    router.prefetch("/habits");
   }, [router]);
 
   const notes = useMemo(
@@ -162,7 +163,7 @@ export function HomeScreen() {
         </section>
       )}
 
-      <footer className="fixed bottom-[calc(16px+var(--safe-bottom))] left-1/2 z-30 flex w-[min(320px,calc(100vw-48px))] -translate-x-1/2 items-center justify-between">
+      <footer className="fixed bottom-[calc(16px+var(--safe-bottom))] left-1/2 z-30 flex w-[min(352px,calc(100vw-40px))] -translate-x-1/2 items-center justify-between">
         <button
           type="button"
           onClick={() => router.push("/settings")}
@@ -178,6 +179,14 @@ export function HomeScreen() {
           className="grid h-12 w-[68px] place-items-center rounded-[22px] bg-white/[0.075] text-white/80 ring-1 ring-white/[0.055] transition active:scale-95"
         >
           <Plus size={24} />
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/habits")}
+          aria-label="العادات"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.075] text-white/55 ring-1 ring-white/[0.055] transition active:scale-95"
+        >
+          <ListChecks size={18} />
         </button>
         <button
           type="button"

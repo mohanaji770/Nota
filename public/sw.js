@@ -5,6 +5,7 @@ const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const APP_SHELL = [
   "/",
   "/settings",
+  "/habits",
   "/offline.html",
   "/manifest.webmanifest",
   "/icons/icon-192.png",

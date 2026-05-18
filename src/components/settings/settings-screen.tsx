@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowRight, Download, RotateCw, Upload } from "lucide-react";
+import { ArrowRight, ChevronDown, Download, RotateCw, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { IconButton } from "@/components/ui/icon-button";
 import { useNotesStore } from "@/services/notes-store";
 import type { AppFontFamily, NotesExport, ThemePreference } from "@/types/notes";
@@ -21,6 +21,7 @@ const fontOptions: Array<{ value: AppFontFamily; label: string; hint: string }> 
 export function SettingsScreen() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [supabaseOpen, setSupabaseOpen] = useState(false);
   const theme = useNotesStore((state) => state.theme);
   const setTheme = useNotesStore((state) => state.setTheme);
   const settings = useNotesStore((state) => state.settings);
@@ -84,6 +85,27 @@ export function SettingsScreen() {
         <div className="rounded-[24px] bg-white/[0.055] p-4 ring-1 ring-white/[0.07]">
           <div className="flex items-center justify-between gap-3">
             <div>
+              <h2 className="text-[0.86rem] font-bold text-white/82">تباعد أسطر الملاحظات</h2>
+              <p className="mt-1 text-[0.68rem] font-medium text-white/32">
+                {Math.round(settings.noteLineHeightScale * 100)}%
+              </p>
+            </div>
+          </div>
+          <input
+            type="range"
+            min="0.9"
+            max="1.25"
+            step="0.05"
+            value={settings.noteLineHeightScale}
+            onChange={(event) => setAppSettings({ noteLineHeightScale: Number(event.target.value) })}
+            className="mt-4 w-full accent-[#ff6f61]"
+            aria-label="تباعد أسطر الملاحظات"
+          />
+        </div>
+
+        <div className="rounded-[24px] bg-white/[0.055] p-4 ring-1 ring-white/[0.07]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
               <h2 className="text-[0.86rem] font-bold text-white/82">حجم خط الملاحظات</h2>
               <p className="mt-1 text-[0.68rem] font-medium text-white/32">
                 {Math.round(settings.noteFontScale * 100)}%
@@ -127,41 +149,58 @@ export function SettingsScreen() {
         </div>
 
         <div className="rounded-[24px] bg-white/[0.055] p-4 ring-1 ring-white/[0.07]">
-          <h2 className="text-[0.86rem] font-bold text-white/82">Supabase</h2>
-          <p className="mt-1 text-[0.68rem] font-medium leading-5 text-white/32">
-            اختياري. إذا تركته فارغًا سيعمل التطبيق محليًا فقط.
-          </p>
-          <div className="mt-3 space-y-3">
-            <label className="block">
-              <span className="mb-1 block text-[0.68rem] font-bold text-white/42">SUPABASE_URL</span>
-              <input
-                value={settings.supabaseUrl}
-                onChange={(event) => setAppSettings({ supabaseUrl: event.target.value })}
-                placeholder="https://xxxxx.supabase.co"
-                dir="ltr"
-                className="h-11 w-full rounded-2xl bg-black/[0.045] px-3 text-left text-[0.76rem] text-black/80 outline-none ring-1 ring-black/[0.08] placeholder:text-black/25 dark:bg-[#151515] dark:text-white/80 dark:ring-white/[0.08] dark:placeholder:text-white/22"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-[0.68rem] font-bold text-white/42">SUPABASE_ANON_KEY</span>
-              <input
-                value={settings.supabaseAnonKey}
-                onChange={(event) => setAppSettings({ supabaseAnonKey: event.target.value })}
-                placeholder="eyJ..."
-                dir="ltr"
-                className="h-11 w-full rounded-2xl bg-black/[0.045] px-3 text-left text-[0.76rem] text-black/80 outline-none ring-1 ring-black/[0.08] placeholder:text-black/25 dark:bg-[#151515] dark:text-white/80 dark:ring-white/[0.08] dark:placeholder:text-white/22"
-              />
-            </label>
-          </div>
           <button
             type="button"
-            onClick={syncNow}
-            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white text-[0.8rem] font-bold text-[#151515] transition active:scale-[0.98]"
+            onClick={() => setSupabaseOpen((value) => !value)}
+            className="flex w-full items-center justify-between gap-3 text-right"
+            aria-expanded={supabaseOpen}
           >
-            <RotateCw size={16} />
-            مزامنة الآن
+            <span>
+              <span className="block text-[0.86rem] font-bold text-white/82">Supabase</span>
+              <span className="mt-1 block text-[0.68rem] font-medium leading-5 text-white/32">
+                اختياري. يعمل التطبيق محليًا إذا تركته فارغًا.
+              </span>
+            </span>
+            <ChevronDown
+              size={18}
+              className={`shrink-0 text-white/45 transition ${supabaseOpen ? "rotate-180" : ""}`}
+            />
           </button>
-          <p className="mt-2 text-center text-[0.66rem] font-medium text-white/32">الحالة: {syncStatus}</p>
+          {supabaseOpen ? (
+            <>
+              <div className="mt-3 space-y-3">
+                <label className="block">
+                  <span className="mb-1 block text-[0.68rem] font-bold text-white/42">SUPABASE_URL</span>
+                  <input
+                    value={settings.supabaseUrl}
+                    onChange={(event) => setAppSettings({ supabaseUrl: event.target.value })}
+                    placeholder="https://xxxxx.supabase.co"
+                    dir="ltr"
+                    className="h-11 w-full rounded-2xl bg-black/[0.045] px-3 text-left text-[0.76rem] text-black/80 outline-none ring-1 ring-black/[0.08] placeholder:text-black/25 dark:bg-[#151515] dark:text-white/80 dark:ring-white/[0.08] dark:placeholder:text-white/22"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[0.68rem] font-bold text-white/42">SUPABASE_ANON_KEY</span>
+                  <input
+                    value={settings.supabaseAnonKey}
+                    onChange={(event) => setAppSettings({ supabaseAnonKey: event.target.value })}
+                    placeholder="eyJ..."
+                    dir="ltr"
+                    className="h-11 w-full rounded-2xl bg-black/[0.045] px-3 text-left text-[0.76rem] text-black/80 outline-none ring-1 ring-black/[0.08] placeholder:text-black/25 dark:bg-[#151515] dark:text-white/80 dark:ring-white/[0.08] dark:placeholder:text-white/22"
+                  />
+                </label>
+              </div>
+              <button
+                type="button"
+                onClick={syncNow}
+                className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-white text-[0.8rem] font-bold text-[#151515] transition active:scale-[0.98]"
+              >
+                <RotateCw size={16} />
+                مزامنة الآن
+              </button>
+              <p className="mt-2 text-center text-[0.66rem] font-medium text-white/32">الحالة: {syncStatus}</p>
+            </>
+          ) : null}
         </div>
 
         <div className="rounded-[24px] bg-white/[0.055] p-4 ring-1 ring-white/[0.07]">

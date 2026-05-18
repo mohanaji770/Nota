@@ -243,14 +243,6 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
           >
             <Redo2 size={19} />
           </IconButton>
-          <IconButton
-            label="المزيد"
-            onClick={() => setMenuOpen((value) => !value)}
-            active={menuOpen}
-            className="text-white/62"
-          >
-            <MoreVertical size={19} />
-          </IconButton>
         </div>
       </footer>
     </main>

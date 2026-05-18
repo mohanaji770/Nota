@@ -3,44 +3,111 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#257244" />
-    <title>ملاحظات - بدون اتصال</title>
+    <meta name="theme-color" content="#151515" />
+    <title>Nota - بدون اتصال</title>
     <style>
+      @font-face {
+        font-family: Cairo;
+        src: url("/fonts/Cairo-Regular.ttf") format("truetype");
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: Cairo;
+        src: url("/fonts/Cairo-Bold.ttf") format("truetype");
+        font-weight: 700;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: #f7f7f5;
-        color: #171613;
-        font-family: Roboto, "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+        background: #151515;
+        color: #f7f7f2;
+        font-family: Cairo, Tahoma, Arial, sans-serif;
       }
       main {
-        width: min(88vw, 390px);
-        text-align: center;
-        line-height: 1.8;
+        width: min(100vw, 430px);
+        min-height: 100vh;
+        padding: calc(34px + env(safe-area-inset-top, 0px)) 24px 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
       .mark {
-        width: 72px;
-        height: 72px;
-        border-radius: 24px;
-        margin: 0 auto 18px;
-        background: #257244;
+        width: 78px;
+        height: 78px;
+        border-radius: 28px;
         display: grid;
         place-items: center;
-        color: white;
+        background: rgba(255, 255, 255, 0.075);
+        color: #ff6f61;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
         font-size: 34px;
+        font-weight: 700;
+      }
+      h1 {
+        margin: 26px 0 0;
+        font-size: 2rem;
+        line-height: 1.2;
       }
       p {
-        color: #76736b;
+        margin: 12px 0 0;
+        color: rgba(247, 247, 242, 0.46);
+        font-size: 0.92rem;
+        line-height: 1.9;
+      }
+      .week {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin-top: 28px;
+      }
+      .day {
+        min-height: 54px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.055);
+        color: rgba(247, 247, 242, 0.32);
+        font-weight: 700;
+      }
+      .day.active {
+        background: #2f8f56;
+        color: white;
+      }
+      button {
+        margin-top: 28px;
+        min-height: 48px;
+        border: 0;
+        border-radius: 999px;
+        background: #f7f7f2;
+        color: #151515;
+        font: inherit;
+        font-weight: 700;
       }
     </style>
   </head>
   <body>
     <main>
-      <div class="mark">ن</div>
-      <h1>أنت الآن بدون اتصال</h1>
-      <p>الملاحظات المحفوظة محليًا ستبقى متاحة. افتح التطبيق مرة أخرى عند عودة الاتصال.</p>
+      <div class="mark">N</div>
+      <h1>أنت بدون اتصال</h1>
+      <p>
+        نوتة ما زالت تحفظ ملاحظاتك محليًا. إذا كانت الواجهة لم تفتح، ارجع للصفحة الرئيسية بعد عودة الاتصال مرة واحدة
+        حتى يتم تحديث الكاش.
+      </p>
+      <div class="week" aria-hidden="true">
+        <div class="day">1</div>
+        <div class="day active">2</div>
+        <div class="day">3</div>
+        <div class="day active">4</div>
+        <div class="day">5</div>
+        <div class="day">6</div>
+        <div class="day active">7</div>
+      </div>
+      <button type="button" onclick="location.href='/'">فتح نوتة</button>
     </main>
   </body>
 </html>
