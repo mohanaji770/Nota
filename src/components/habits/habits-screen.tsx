@@ -1,11 +1,13 @@
 "use client";
 
 import { ArrowRight, Bell, Check, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconButton } from "@/components/ui/icon-button";
 import { buildHabitWeek } from "@/lib/habits";
+import { getHabitNotificationPermission, requestHabitNotificationPermission } from "@/services/habit-reminders";
 import { useNotesStore } from "@/services/notes-store";
+import type { Habit } from "@/types/notes";
 
 export function HabitsScreen() {
   const router = useRouter();
@@ -13,20 +15,54 @@ export function HabitsScreen() {
   const createHabit = useNotesStore((state) => state.createHabit);
   const updateHabit = useNotesStore((state) => state.updateHabit);
   const deleteHabit = useNotesStore((state) => state.deleteHabit);
+  const restoreHabit = useNotesStore((state) => state.restoreHabit);
   const toggleHabitDate = useNotesStore((state) => state.toggleHabitDate);
   const [title, setTitle] = useState("");
   const [reminderTime, setReminderTime] = useState("08:00");
+  const [notificationPermission, setNotificationPermission] = useState("unsupported");
+  const [deletedHabit, setDeletedHabit] = useState<Habit | null>(null);
+  const undoTimer = useRef<number | null>(null);
   const week = useMemo(() => buildHabitWeek(), []);
+
+  useEffect(() => {
+    setNotificationPermission(getHabitNotificationPermission());
+    return () => {
+      if (undoTimer.current) window.clearTimeout(undoTimer.current);
+    };
+  }, []);
 
   const handleCreate = async () => {
     const nextTitle = title.trim();
     if (!nextTitle) return;
-    await createHabit({ title: nextTitle, reminderTime });
-    setTitle("");
+    try {
+      await createHabit({ title: nextTitle, reminderTime });
+      setTitle("");
+    } catch {
+      // The global status toast displays the storage failure.
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    const permission = await requestHabitNotificationPermission();
+    setNotificationPermission(permission);
+  };
+
+  const handleDelete = async (habit: Habit) => {
+    if (undoTimer.current) window.clearTimeout(undoTimer.current);
+    setDeletedHabit(habit);
+    await deleteHabit(habit.id);
+    undoTimer.current = window.setTimeout(() => setDeletedHabit(null), 6000);
+  };
+
+  const handleUndoDelete = async () => {
+    if (!deletedHabit) return;
+    if (undoTimer.current) window.clearTimeout(undoTimer.current);
+    await restoreHabit(deletedHabit);
+    setDeletedHabit(null);
   };
 
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-[430px] bg-[#f7f7f2] px-5 pb-[calc(30px+var(--safe-bottom))] pt-[calc(10px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
+    <main className="adaptive-tonal mx-auto min-h-[100dvh] w-full max-w-[430px] bg-[#f7f7f2] px-5 pb-[calc(30px+var(--safe-bottom))] pt-[calc(10px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
       <header className="sticky top-0 z-20 -mx-5 bg-[#f7f7f2]/92 px-3 pt-[calc(6px+var(--safe-top))] backdrop-blur-xl dark:bg-[#151515]/92">
         <div className="flex min-h-14 items-center gap-2">
           <IconButton label="رجوع" onClick={() => router.push("/")} className="text-white/58">
@@ -40,6 +76,22 @@ export function HabitsScreen() {
       </header>
 
       <section className="mt-4 rounded-[24px] bg-white/[0.055] p-3 ring-1 ring-white/[0.07]">
+        {notificationPermission !== "granted" ? (
+          <button
+            type="button"
+            onClick={handleEnableNotifications}
+            disabled={notificationPermission === "unsupported" || notificationPermission === "denied"}
+            className="mb-3 flex min-h-11 w-full items-center gap-2 rounded-2xl bg-[#ff6f61]/14 px-3 text-right text-[0.74rem] font-bold leading-5 text-[#ff6f61] ring-1 ring-[#ff6f61]/20 transition active:scale-[0.98] disabled:opacity-55"
+          >
+            <Bell size={16} />
+            {notificationPermission === "denied"
+              ? "الإشعارات موقوفة من إعدادات المتصفح"
+              : notificationPermission === "unsupported"
+                ? "الإشعارات غير مدعومة في هذا المتصفح"
+                : "تفعيل تذكيرات العادات"}
+          </button>
+        ) : null}
+
         <label className="block">
           <span className="mb-1 block text-[0.68rem] font-bold text-white/42">عنوان العادة</span>
           <input
@@ -105,7 +157,7 @@ export function HabitsScreen() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => deleteHabit(habit.id)}
+                  onClick={() => handleDelete(habit)}
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/[0.055] text-white/38 transition active:scale-95"
                   aria-label="حذف العادة"
                 >
@@ -140,6 +192,19 @@ export function HabitsScreen() {
           ))
         )}
       </section>
+
+      {deletedHabit ? (
+        <div className="fixed inset-x-4 bottom-[calc(18px+var(--safe-bottom))] z-50 mx-auto flex max-w-[380px] items-center gap-3 rounded-[22px] bg-[#202020] px-4 py-3 text-[0.78rem] font-semibold text-[#f7f7f2] shadow-2xl ring-1 ring-white/[0.08]">
+          <p className="min-w-0 flex-1">تم حذف العادة</p>
+          <button
+            type="button"
+            onClick={handleUndoDelete}
+            className="rounded-full bg-white/[0.09] px-3 py-2 text-[0.72rem] font-bold text-white transition active:scale-95"
+          >
+            تراجع
+          </button>
+        </div>
+      ) : null}
     </main>
   );
 }

@@ -42,6 +42,20 @@
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
+      "name": "بحث في الملاحظات",
+      "short_name": "بحث",
+      "description": "فتح البحث مباشرة",
+      "url": "/?focus=search",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "العادات",
+      "short_name": "العادات",
+      "description": "تتبع العادات اليومية",
+      "url": "/habits",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
       "name": "الإعدادات",
       "short_name": "إعدادات",
       "description": "فتح إعدادات نوتة",

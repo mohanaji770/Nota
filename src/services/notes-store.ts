@@ -43,6 +43,7 @@ type NotesState = {
   settings: AppSettings;
   syncStatus: SyncStatus;
   syncError: string | null;
+  operationError: string | null;
   hydrate: () => Promise<void>;
   createNote: (folderId?: string) => Promise<Note>;
   updateNote: (note: Note) => Promise<void>;
@@ -52,6 +53,7 @@ type NotesState = {
   createHabit: (input: { title: string; reminderTime?: string | null }) => Promise<void>;
   updateHabit: (habit: Habit) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
+  restoreHabit: (habit: Habit) => Promise<void>;
   toggleHabitDate: (habitId: string, dateKey: string) => Promise<void>;
   setQuery: (query: string) => void;
   setFolder: (folderId: string) => void;
@@ -60,6 +62,7 @@ type NotesState = {
   syncNow: () => Promise<void>;
   exportAll: () => Promise<NotesExport>;
   importAll: (payload: NotesExport) => Promise<void>;
+  clearOperationError: () => void;
 };
 
 function updateNoteInList(notes: Note[], next: Note) {
@@ -82,6 +85,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   settings: DEFAULT_APP_SETTINGS,
   syncStatus: isSupabaseConfigured() ? "idle" : "local",
   syncError: null,
+  operationError: null,
 
   async hydrate() {
     const [notes, folders, habits, theme, settings] = await Promise.all([
@@ -105,8 +109,17 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   async createNote(folderId) {
     const note = createEmptyNote(folderId || get().activeFolderId || DEFAULT_FOLDER_ID);
     set((state) => ({ notes: updateNoteInList([note, ...state.notes], note) }));
-    void saveNote(note).catch(() => undefined);
-    return note;
+    try {
+      await saveNote(note);
+      set({ operationError: null });
+      return note;
+    } catch (error) {
+      set((state) => ({
+        notes: state.notes.filter((item) => item.id !== note.id),
+        operationError: "تعذر حفظ الملاحظة محليًا. تأكد من مساحة التخزين ثم حاول مرة أخرى."
+      }));
+      throw error;
+    }
   },
 
   async updateNote(note) {
@@ -160,7 +173,16 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     };
     if (!habit.title) return;
     set((state) => ({ habits: [habit, ...state.habits] }));
-    await saveHabit(habit);
+    try {
+      await saveHabit(habit);
+      set({ operationError: null });
+    } catch (error) {
+      set((state) => ({
+        habits: state.habits.filter((item) => item.id !== habit.id),
+        operationError: "تعذر حفظ العادة محليًا. حاول مرة أخرى."
+      }));
+      throw error;
+    }
   },
 
   async updateHabit(habit) {
@@ -170,8 +192,34 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
 
   async deleteHabit(id) {
+    const previous = get().habits;
     set((state) => ({ habits: state.habits.filter((habit) => habit.id !== id) }));
-    await deleteHabitFromStorage(id);
+    try {
+      await deleteHabitFromStorage(id);
+      set({ operationError: null });
+    } catch (error) {
+      set({ habits: previous, operationError: "تعذر حذف العادة. حاول مرة أخرى." });
+      throw error;
+    }
+  },
+
+  async restoreHabit(habit) {
+    const next = { ...habit, updatedAt: nowIso() };
+    set((state) => ({
+      habits: [next, ...state.habits.filter((item) => item.id !== next.id)].sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
+    }));
+    try {
+      await saveHabit(next);
+      set({ operationError: null });
+    } catch (error) {
+      set((state) => ({
+        habits: state.habits.filter((item) => item.id !== next.id),
+        operationError: "تعذر استرجاع العادة. حاول مرة أخرى."
+      }));
+      throw error;
+    }
   },
 
   async toggleHabitDate(habitId, dateKey) {
@@ -266,6 +314,10 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     await importIntoStorage(payload);
     const [notes, folders] = await Promise.all([listNotes(), listFolders()]);
     set({ notes, folders });
+  },
+
+  clearOperationError() {
+    set({ operationError: null, syncError: null });
   }
 }));
 

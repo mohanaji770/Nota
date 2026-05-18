@@ -1,4 +1,4 @@
-const CACHE_VERSION = "notes-pwa-v3";
+const CACHE_VERSION = "notes-pwa-v5";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -43,6 +43,20 @@ self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") {
     self.skipWaiting();
   }
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || "/";
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clients) => {
+        const existing = clients.find((client) => new URL(client.url).pathname === targetUrl);
+        if (existing) return existing.focus();
+        return self.clients.openWindow(targetUrl);
+      })
+  );
 });
 
 async function cacheFirst(request) {

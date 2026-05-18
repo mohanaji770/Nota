@@ -43,9 +43,11 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
 
   useEffect(() => {
     if (!hydrated || draft) return;
-    createNote().then((note) => {
-      if (note.id !== noteId) router.replace(`/note/${note.id}`);
-    });
+    createNote()
+      .then((note) => {
+        if (note.id !== noteId) router.replace(`/note/${note.id}`);
+      })
+      .catch(() => undefined);
   }, [createNote, draft, hydrated, noteId, router]);
 
   const debouncedSave = useDebouncedCallback(async (note: Note) => {
@@ -135,14 +137,14 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
 
   if (!draft) {
     return (
-      <main className="grid min-h-[100dvh] place-items-center bg-[#f7f7f2] text-sm font-medium text-black/45 dark:bg-[#151515] dark:text-white/45">
+      <main className="adaptive-tonal grid min-h-[100dvh] place-items-center bg-[#f7f7f2] text-sm font-medium text-black/45 dark:bg-[#151515] dark:text-white/45">
         تحميل الملاحظة...
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex min-h-[100dvh] w-full max-w-[620px] flex-col bg-[#f7f7f2] pb-[calc(92px+var(--safe-bottom))] pt-[var(--safe-top)] text-[#151515] dark:bg-[#151515] dark:text-white">
+    <main className="adaptive-tonal mx-auto flex min-h-[100dvh] w-full max-w-[620px] flex-col bg-[#f7f7f2] pb-[calc(92px+var(--safe-bottom))] pt-[var(--safe-top)] text-[#151515] dark:bg-[#151515] dark:text-white">
       <header className="sticky top-0 z-20 border-b border-black/[0.055] bg-[#f7f7f2]/90 px-3 pt-[calc(8px+var(--safe-top))] backdrop-blur-xl dark:border-white/[0.055] dark:bg-[#151515]/90">
         <div className="flex min-h-14 items-center gap-1">
           <IconButton label="رجوع" onClick={() => router.push("/")} className="text-white/58">

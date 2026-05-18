@@ -2,7 +2,7 @@
 
 import { ListChecks, Plus, Search, Settings2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_FOLDER_ID } from "@/lib/constants";
 import { useNotesStore } from "@/services/notes-store";
 import { EmptyState } from "./empty-state";
@@ -46,6 +46,7 @@ function buildWeekDays() {
 
 export function HomeScreen() {
   const router = useRouter();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const allNotes = useNotesStore((state) => state.notes);
   const hydrated = useNotesStore((state) => state.hydrated);
   const query = useNotesStore((state) => state.query);
@@ -79,20 +80,34 @@ export function HomeScreen() {
   useEffect(() => {
     if (!hydrated) return;
     const params = new URLSearchParams(window.location.search);
+    if (params.get("focus") === "search") {
+      params.delete("focus");
+      setSearchOpen(true);
+      window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`.replace(/\?$/, ""));
+      requestAnimationFrame(() => searchInputRef.current?.focus());
+      return;
+    }
+
     if (params.get("action") !== "new") return;
 
     params.delete("action");
     window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`.replace(/\?$/, ""));
-    createNote(activeFolderId).then((note) => router.push(`/note/${note.id}`));
+    createNote(activeFolderId)
+      .then((note) => router.push(`/note/${note.id}`))
+      .catch(() => undefined);
   }, [activeFolderId, createNote, hydrated, router]);
 
   const handleCreate = async () => {
-    const note = await createNote(activeFolderId);
-    router.push(`/note/${note.id}`);
+    try {
+      const note = await createNote(activeFolderId);
+      router.push(`/note/${note.id}`);
+    } catch {
+      // The global status toast displays the storage failure.
+    }
   };
 
   return (
-    <main className="mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-x-hidden bg-[#f7f7f2] px-6 pb-[calc(92px+var(--safe-bottom))] pt-[calc(22px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
+    <main className="adaptive-tonal mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-x-hidden bg-[#f7f7f2] px-6 pb-[calc(92px+var(--safe-bottom))] pt-[calc(22px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
       <header className="shrink-0">
         <div className="flex items-start justify-between gap-5">
           <div>
@@ -132,6 +147,7 @@ export function HomeScreen() {
           <label className="mt-5 flex h-11 items-center gap-3 rounded-2xl bg-white/[0.055] px-4 ring-1 ring-white/[0.07]">
             <Search size={17} className="text-white/40" aria-hidden />
             <input
+              ref={searchInputRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               autoFocus

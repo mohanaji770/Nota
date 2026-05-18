@@ -139,6 +139,14 @@ export async function deleteHabit(id: string) {
   await db.delete("habits", id);
 }
 
+export async function getHabitReminderSentDate(id: string) {
+  return getSetting<string | null>(`habitReminder:${id}`, null);
+}
+
+export async function setHabitReminderSentDate(id: string, dateKey: string) {
+  await setSetting(`habitReminder:${id}`, dateKey);
+}
+
 export async function exportNotes(): Promise<NotesExport> {
   const [notes, folders] = await Promise.all([
     listNotes({ includeArchived: true, includeDeleted: true }),

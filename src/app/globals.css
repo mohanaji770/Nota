@@ -116,19 +116,19 @@ body {
   color: #f7f7f5;
 }
 
-html:not(.dark) [class*="text-white"] {
+html:not(.dark) .adaptive-tonal [class*="text-white"] {
   color: rgba(21, 21, 21, 0.78);
 }
 
-html:not(.dark) [class*="bg-white/"] {
+html:not(.dark) .adaptive-tonal [class*="bg-white/"] {
   background-color: rgba(21, 21, 21, 0.055);
 }
 
-html:not(.dark) [class*="ring-white/"] {
+html:not(.dark) .adaptive-tonal [class*="ring-white/"] {
   --tw-ring-color: rgba(21, 21, 21, 0.08);
 }
 
-html:not(.dark) [class*="border-white/"] {
+html:not(.dark) .adaptive-tonal [class*="border-white/"] {
   border-color: rgba(21, 21, 21, 0.08);
 }
 
