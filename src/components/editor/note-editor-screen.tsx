@@ -1,24 +1,12 @@
 "use client";
 
-import {
-  ArrowRight,
-  CheckSquare,
-  Heading1,
-  List,
-  MoreVertical,
-  Pin,
-  PinOff,
-  Redo2,
-  Trash2,
-  Type,
-  Undo2
-} from "lucide-react";
+import { ArrowRight, CheckSquare, Heading1, List, ListTodo, MoreVertical, Pin, PinOff, Redo2, Trash2, Type, Undo2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { IconButton } from "@/components/ui/icon-button";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { AUTOSAVE_DELAY_MS } from "@/lib/constants";
-import { createBlock, deriveTitle } from "@/lib/notes";
+import { createBlock, deriveTitle, parseMarkdownToBlocks } from "@/lib/notes";
 import { useNotesStore } from "@/services/notes-store";
 import type { Note, NoteBlock } from "@/types/notes";
 import { EditorBlock } from "./note-block";
@@ -34,6 +22,7 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
   const [draft, setDraft] = useState<Note | null>(storeNote ?? null);
   const [savedAt, setSavedAt] = useState<string>("محفوظ");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectAllMode, setSelectAllMode] = useState(false);
   const undoStack = useRef<NoteBlock[][]>([]);
   const redoStack = useRef<NoteBlock[][]>([]);
 
@@ -49,6 +38,40 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
       })
       .catch(() => undefined);
   }, [createNote, draft, hydrated, noteId, router]);
+
+  // Exit select-all mode on click or keydown (except Ctrl+A)
+  useEffect(() => {
+    if (!selectAllMode) return;
+    const handle = (e: Event) => {
+      if (e instanceof KeyboardEvent && (e.ctrlKey || e.metaKey) && e.key === "a") return;
+      setSelectAllMode(false);
+    };
+    document.addEventListener("click", handle);
+    document.addEventListener("keydown", handle);
+    return () => {
+      document.removeEventListener("click", handle);
+      document.removeEventListener("keydown", handle);
+    };
+  }, [selectAllMode]);
+
+  // Copy all blocks when select-all mode is active
+  useEffect(() => {
+    if (!selectAllMode || !draft) return;
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      const text = draft.blocks
+        .map((b) => {
+          if (b.type === "heading") return `# ${b.text}`;
+          if (b.type === "list") return `- ${b.text}`;
+          if (b.type === "check") return `- [${b.checked ? "x" : " "}] ${b.text}`;
+          return b.text;
+        })
+        .join("\n");
+      e.clipboardData?.setData("text/plain", text);
+    };
+    document.addEventListener("copy", handleCopy);
+    return () => document.removeEventListener("copy", handleCopy);
+  }, [selectAllMode, draft]);
 
   const debouncedSave = useDebouncedCallback(async (note: Note) => {
     setSavedAt("جاري الحفظ...");
@@ -96,6 +119,18 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
     commitBlocks(next);
     requestAnimationFrame(() => {
       document.querySelector<HTMLTextAreaElement>(`[data-block-input="${next[Math.max(0, index - 1)]?.id}"]`)?.focus();
+    });
+  };
+
+  const replaceBlockWithBlocks = (blockId: string, newBlocks: NoteBlock[]) => {
+    if (!draft || newBlocks.length === 0) return;
+    const index = draft.blocks.findIndex((block) => block.id === blockId);
+    const next = [...draft.blocks];
+    next.splice(index, 1, ...newBlocks);
+    commitBlocks(next);
+    requestAnimationFrame(() => {
+      const lastBlock = newBlocks[newBlocks.length - 1];
+      document.querySelector<HTMLTextAreaElement>(`[data-block-input="${lastBlock.id}"]`)?.focus();
     });
   };
 
@@ -187,6 +222,14 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
           </button>
           <button
             type="button"
+            onClick={() => addQuickBlock("check")}
+            className="flex min-h-11 w-full items-center gap-3 rounded-[18px] px-3 text-right transition active:scale-[0.98]"
+          >
+            <ListTodo size={16} />
+            قائمة مهام
+          </button>
+          <button
+            type="button"
             onClick={() => {
               togglePin(draft.id);
               setMenuOpen(false);
@@ -216,13 +259,16 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
               onChange={updateBlock}
               onEnter={addBlockAfter}
               onRemove={removeBlock}
+              onPasteBlocks={replaceBlockWithBlocks}
+              onSelectAll={() => setSelectAllMode(true)}
+              isSelectAll={selectAllMode}
             />
           ))}
         </div>
       </section>
 
       <footer className="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-[620px] bg-[#f7f7f2]/88 px-5 pb-[calc(14px+var(--safe-bottom))] pt-3 backdrop-blur-xl dark:bg-[#151515]/88">
-        <div className="mx-auto flex max-w-[360px] items-center justify-between rounded-full bg-white/[0.105] px-2 py-1 ring-1 ring-white/[0.075]">
+        <div className="mx-auto flex max-w-[380px] items-center justify-between rounded-full bg-white/[0.105] px-2 py-1 ring-1 ring-white/[0.075]">
           <IconButton
             label="تراجع"
             onClick={undo}
@@ -233,6 +279,9 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
           </IconButton>
           <IconButton label="عنوان" onClick={() => addQuickBlock("heading")} className="text-white/84">
             <Heading1 size={19} />
+          </IconButton>
+          <IconButton label="قائمة" onClick={() => addQuickBlock("list")} className="text-white/84">
+            <List size={19} />
           </IconButton>
           <IconButton label="مهمة" onClick={() => addQuickBlock("check")} className="text-white/84">
             <CheckSquare size={19} />
@@ -246,6 +295,9 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
             <Redo2 size={19} />
           </IconButton>
         </div>
+        <p className="mt-2 text-center text-[0.6rem] font-medium text-white/20">
+          اضغط Enter لسطر جديد · # عنوان · - قائمة · - [ ] مهمة
+        </p>
       </footer>
     </main>
   );

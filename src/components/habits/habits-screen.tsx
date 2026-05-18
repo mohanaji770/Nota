@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconButton } from "@/components/ui/icon-button";
 import { buildHabitWeek } from "@/lib/habits";
+import { cn } from "@/lib/cn";
 import { getHabitNotificationPermission, requestHabitNotificationPermission } from "@/services/habit-reminders";
 import { useNotesStore } from "@/services/notes-store";
 import type { Habit } from "@/types/notes";
@@ -75,7 +76,7 @@ export function HabitsScreen() {
         </div>
       </header>
 
-      <section className="mt-4 rounded-[24px] bg-white/[0.055] p-3 ring-1 ring-white/[0.07]">
+      <section className="mt-4 rounded-[24px] bg-white/[0.055] p-4 ring-1 ring-white/[0.07]">
         {notificationPermission !== "granted" ? (
           <button
             type="button"
@@ -122,7 +123,7 @@ export function HabitsScreen() {
         </div>
       </section>
 
-      <section className="mt-5 space-y-2" aria-label="قائمة العادات">
+      <section className="mt-5 space-y-3" aria-label="قائمة العادات">
         {habits.length === 0 ? (
           <div className="py-14 text-center">
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-white/[0.055] text-white/55 ring-1 ring-white/[0.06]">
@@ -135,17 +136,17 @@ export function HabitsScreen() {
           </div>
         ) : (
           habits.map((habit) => (
-            <article key={habit.id} className="border-b border-dashed border-white/[0.055] py-3">
+            <article key={habit.id} className="rounded-[24px] bg-white/[0.055] p-4 ring-1 ring-white/[0.07]">
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <input
                     value={habit.title}
                     onChange={(event) => updateHabit({ ...habit, title: event.target.value })}
-                    className="w-full bg-transparent text-[0.95rem] font-bold leading-6 text-white/84 outline-none"
+                    className="w-full bg-transparent text-[0.95rem] font-bold leading-6 text-white/84 outline-none focus:underline focus:decoration-white/20 focus:underline-offset-4"
                     aria-label="عنوان العادة"
                   />
-                  <label className="mt-1 flex w-fit items-center gap-1 text-[0.66rem] font-medium text-white/35">
-                    <Bell size={12} />
+                  <div className="mt-1 flex w-fit items-center gap-1.5 text-[0.66rem] font-medium text-white/35">
+                    <Bell size={11} />
                     <input
                       type="time"
                       value={habit.reminderTime || ""}
@@ -153,19 +154,19 @@ export function HabitsScreen() {
                       className="bg-transparent outline-none"
                       aria-label="وقت التذكير"
                     />
-                  </label>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleDelete(habit)}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/[0.055] text-white/38 transition active:scale-95"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/[0.055] text-white/38 transition active:scale-95 hover:bg-red-500/10 hover:text-red-400"
                   aria-label="حذف العادة"
                 >
                   <Trash2 size={15} />
                 </button>
               </div>
 
-              <div className="mt-3 grid grid-cols-7 gap-1">
+              <div className="mt-4 grid grid-cols-7 gap-1.5">
                 {week.map((day) => {
                   const done = habit.completedDates.includes(day.key);
                   return (
@@ -173,17 +174,18 @@ export function HabitsScreen() {
                       key={day.key}
                       type="button"
                       onClick={() => toggleHabitDate(habit.id, day.key)}
-                      className={`min-h-[54px] rounded-[14px] px-1 text-center transition active:scale-[0.98] ${
+                      className={cn(
+                        "flex flex-col items-center justify-center rounded-2xl py-2.5 text-center transition active:scale-[0.96]",
                         done
-                          ? "bg-[#2f8f56] text-white"
+                          ? "bg-[#2f8f56] text-white shadow-sm"
                           : day.isToday
-                            ? "bg-[#ff6f61]/16 text-[#ff6f61] ring-1 ring-[#ff6f61]/25"
-                            : "bg-white/[0.045] text-white/38"
-                      }`}
+                            ? "bg-[#ff6f61]/12 text-[#ff6f61] ring-1 ring-[#ff6f61]/30"
+                            : "bg-white/[0.04] text-white/30 hover:bg-white/[0.08]"
+                      )}
                       aria-label={`${habit.title} ${day.key}`}
                     >
-                      <span className="block text-[0.8rem] font-bold leading-5">{day.number}</span>
-                      <span className="block text-[0.52rem] font-bold leading-4">{day.day}</span>
+                      <span className="text-[0.55rem] font-bold uppercase leading-3 opacity-70">{day.day}</span>
+                      <span className="mt-0.5 text-[0.9rem] font-bold leading-5">{day.number}</span>
                     </button>
                   );
                 })}
