@@ -9,7 +9,7 @@ export function createEmptyNote(folderId = DEFAULT_FOLDER_ID): Note {
   return {
     id: createId("note"),
     title: "ملاحظة جديدة",
-    blocks: [{ id: createId("block"), type: "paragraph", text: "" }],
+    blocks: [{ id: createId("block"), type: "heading", text: "" }],
     folderId,
     pinned: false,
     archived: false,

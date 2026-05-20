@@ -296,8 +296,8 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
       ) : null}
 
       {/* Editor */}
-      <section className="flex-1 px-5 py-6" aria-label="محرر الملاحظة">
-        <div className="mx-auto max-w-prose space-y-1">
+      <section className="flex-1 px-5 py-4" aria-label="محرر الملاحظة">
+        <div className="mx-auto max-w-prose space-y-0">
           {draft.blocks.map((block, i) => {
             let listNumber = 1;
             if (block.type === "numbered_list") {
