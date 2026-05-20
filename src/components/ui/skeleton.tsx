@@ -4,7 +4,7 @@ export function SkeletonList() {
       {Array.from({ length: 5 }).map((_, index) => (
         <div
           key={index}
-          className="h-[108px] animate-pulse rounded-[22px] bg-ink-100/80 dark:bg-white/[0.08]"
+          className="h-[108px] animate-pulse rounded-2xl bg-white/[0.06]"
         />
       ))}
     </div>

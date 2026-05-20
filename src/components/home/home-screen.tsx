@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_FOLDER_ID } from "@/lib/constants";
 import { useNotesStore } from "@/services/notes-store";
+import { cn } from "@/lib/cn";
 import { EmptyState } from "./empty-state";
 import { InstallPrompt } from "./install-prompt";
 import { NoteCard } from "./note-card";
@@ -13,18 +14,8 @@ import { SyncPill } from "./sync-pill";
 const dayNames = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 const shortDays = ["أحد", "اثن", "ثلا", "أرب", "خمي", "جمع", "سبت"];
 const monthNames = [
-  "يناير",
-  "فبراير",
-  "مارس",
-  "أبريل",
-  "مايو",
-  "يونيو",
-  "يوليو",
-  "أغسطس",
-  "سبتمبر",
-  "أكتوبر",
-  "نوفمبر",
-  "ديسمبر"
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
 ];
 
 function buildWeekDays() {
@@ -89,7 +80,6 @@ export function HomeScreen() {
     }
 
     if (params.get("action") !== "new") return;
-
     params.delete("action");
     window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`.replace(/\?$/, ""));
     createNote(activeFolderId)
@@ -107,20 +97,20 @@ export function HomeScreen() {
   };
 
   return (
-    <main className="adaptive-tonal mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-x-hidden bg-[#f7f7f2] px-6 pb-[calc(92px+var(--safe-bottom))] pt-[calc(22px+var(--safe-top))] text-[#151515] dark:bg-[#151515] dark:text-[#f7f7f2]">
+    <main className="adaptive-tonal mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col overflow-x-hidden bg-surface px-6 pb-[calc(92px+var(--safe-bottom))] pt-[calc(22px+var(--safe-top))] dark:bg-surface-dark">
       <header className="shrink-0">
         <div className="flex items-start justify-between gap-5">
           <div>
-            <h1 className="text-[2.05rem] font-bold leading-none tracking-normal">
+            <h1 className="text-[2.05rem] font-bold leading-none tracking-tight text-white/88">
               {dayNames[today.getDay()]}
             </h1>
-            <p className="mt-2 text-[0.7rem] font-medium text-white/35">{notes.length} ملاحظة</p>
+            <p className="mt-2 text-[0.72rem] font-medium text-white/30">{notes.length} ملاحظة</p>
           </div>
           <div className="pt-1 text-left">
-            <p className="text-[0.98rem] font-semibold leading-5 text-white/48">
+            <p className="text-[0.98rem] font-semibold leading-5 text-white/44">
               {today.getDate()} {monthNames[today.getMonth()]}
             </p>
-            <p className="text-[0.9rem] font-semibold leading-5 text-white/32">{today.getFullYear()}</p>
+            <p className="text-[0.9rem] font-semibold leading-5 text-white/28">{today.getFullYear()}</p>
           </div>
         </div>
 
@@ -128,15 +118,19 @@ export function HomeScreen() {
           {weekDays.map((item) => (
             <div
               key={item.key}
-              className={`relative rounded-[14px] px-1 py-2 transition ${
-                item.active ? "bg-white/[0.055] ring-1 ring-white/[0.075]" : ""
-              }`}
+              className={cn(
+                "relative rounded-xl px-1 py-2 transition",
+                item.active && "bg-white/[0.06] ring-1 ring-white/[0.08]"
+              )}
             >
               {!item.active && item.number === today.getDate() - 1 ? (
-                <span className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-[#ef4444]" />
+                <span className="absolute left-1/2 top-1 h-1 w-1 -translate-x-1/2 rounded-full bg-destructive" />
               ) : null}
-              <p className="text-[0.92rem] font-semibold leading-5 text-white/22">{item.number}</p>
-              <p className={`text-[0.52rem] font-bold leading-4 ${item.active ? "text-[#ff6f61]" : "text-white/30"}`}>
+              <p className="text-[0.92rem] font-semibold leading-5 text-white/20">{item.number}</p>
+              <p className={cn(
+                "text-[0.52rem] font-bold leading-4",
+                item.active ? "text-accent" : "text-white/28"
+              )}>
                 {item.day}
               </p>
             </div>
@@ -144,15 +138,15 @@ export function HomeScreen() {
         </div>
 
         {searchOpen ? (
-          <label className="mt-5 flex h-11 items-center gap-3 rounded-2xl bg-white/[0.055] px-4 ring-1 ring-white/[0.07]">
-            <Search size={17} className="text-white/40" aria-hidden />
+          <label className="mt-5 flex h-11 items-center gap-3 rounded-xl bg-white/[0.06] px-4 ring-1 ring-white/[0.07]">
+            <Search size={17} className="text-white/35" aria-hidden />
             <input
               ref={searchInputRef}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               autoFocus
               placeholder="ابحث في الملاحظات"
-              className="h-full min-w-0 flex-1 bg-transparent text-[0.86rem] text-white outline-none placeholder:text-white/30"
+              className="h-full min-w-0 flex-1 bg-transparent text-[0.86rem] text-white/80 outline-none placeholder:text-white/25"
               inputMode="search"
               aria-label="بحث في الملاحظات"
             />
@@ -160,13 +154,13 @@ export function HomeScreen() {
         ) : null}
 
         <InstallPrompt />
-        <div className="mt-5 border-t border-dashed border-white/[0.055]" />
+        <div className="mt-5 border-t border-white/[0.06]" />
       </header>
 
       {!hydrated ? (
         <section className="space-y-1 pt-3">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-[74px] animate-pulse border-b border-dashed border-white/[0.045]" />
+            <div key={index} className="h-[74px] animate-pulse rounded-xl bg-white/[0.04]" />
           ))}
         </section>
       ) : notes.length === 0 ? (
@@ -179,12 +173,12 @@ export function HomeScreen() {
         </section>
       )}
 
-      <footer className="fixed bottom-[calc(16px+var(--safe-bottom))] left-1/2 z-30 flex w-[min(352px,calc(100vw-40px))] -translate-x-1/2 items-center justify-between">
+      <footer className="fixed bottom-[calc(16px+var(--safe-bottom))] left-1/2 z-30 flex w-[min(360px,calc(100vw-40px))] -translate-x-1/2 items-center justify-between">
         <button
           type="button"
           onClick={() => router.push("/settings")}
           aria-label="الإعدادات"
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.075] text-white/55 ring-1 ring-white/[0.055] transition active:scale-95"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <Settings2 size={18} />
         </button>
@@ -192,7 +186,7 @@ export function HomeScreen() {
           type="button"
           onClick={handleCreate}
           aria-label="إنشاء ملاحظة جديدة"
-          className="grid h-12 w-[68px] place-items-center rounded-[22px] bg-white/[0.075] text-white/80 ring-1 ring-white/[0.055] transition active:scale-95"
+          className="grid h-12 w-[68px] place-items-center rounded-2xl bg-white/[0.08] text-white/76 ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <Plus size={24} />
         </button>
@@ -200,7 +194,7 @@ export function HomeScreen() {
           type="button"
           onClick={() => router.push("/habits")}
           aria-label="العادات"
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.075] text-white/55 ring-1 ring-white/[0.055] transition active:scale-95"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <ListChecks size={18} />
         </button>
@@ -208,7 +202,7 @@ export function HomeScreen() {
           type="button"
           onClick={() => setSearchOpen((value) => !value)}
           aria-label="بحث"
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.075] text-white/55 ring-1 ring-white/[0.055] transition active:scale-95"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <Search size={19} />
         </button>

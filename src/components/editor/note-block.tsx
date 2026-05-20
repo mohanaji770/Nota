@@ -9,6 +9,8 @@ import type { NoteBlock } from "@/types/notes";
 
 type EditorBlockProps = {
   block: NoteBlock;
+  isFirst?: boolean;
+  listNumber?: number;
   onChange: (blockId: string, patch: Partial<NoteBlock>) => void;
   onEnter: (blockId: string, type?: NoteBlock["type"]) => void;
   onRemove: (blockId: string) => void;
@@ -17,7 +19,9 @@ type EditorBlockProps = {
   isSelectAll?: boolean;
 };
 
-export function EditorBlock({ block, onChange, onEnter, onRemove, onPasteBlocks, onSelectAll, isSelectAll }: EditorBlockProps) {
+const SAME_ON_ENTER: NoteBlock["type"][] = ["check", "list", "numbered_list"];
+
+export function EditorBlock({ block, isFirst, listNumber, onChange, onEnter, onRemove, onPasteBlocks, onSelectAll, isSelectAll }: EditorBlockProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useAutoResize(textareaRef, block.text);
@@ -50,12 +54,29 @@ export function EditorBlock({ block, onChange, onEnter, onRemove, onPasteBlocks,
 
     if ((event.ctrlKey || event.metaKey) && event.key === "a") {
       event.preventDefault();
+      el.select();
       onSelectAll?.();
       return;
     }
 
     if (event.key === "Enter" && !event.shiftKey) {
-      // Enter = سطر جديد داخل نفس الفقرة (default textarea behavior)
+      // Heading: Enter = new paragraph block below (Apple Notes style)
+      if (block.type === "heading") {
+        event.preventDefault();
+        onEnter(block.id, "paragraph");
+        return;
+      }
+      // Check / list / numbered_list: Enter = new block of same type
+      if (SAME_ON_ENTER.includes(block.type)) {
+        event.preventDefault();
+        if (block.text.trim().length === 0) {
+          // Empty item: convert back to paragraph (exit list)
+          onChange(block.id, { type: "paragraph" });
+        } else {
+          onEnter(block.id, block.type);
+        }
+      }
+      // Paragraph / blockquote: Enter = newline (default)
       return;
     }
 
@@ -77,8 +98,12 @@ export function EditorBlock({ block, onChange, onEnter, onRemove, onPasteBlocks,
       return;
     }
 
-    // Convert heading to paragraph on backspace at start
-    if (event.key === "Backspace" && block.type === "heading" && isAtStart) {
+    // Convert heading/numbered_list/list/blockquote to paragraph on backspace at start
+    if (
+      event.key === "Backspace" &&
+      isAtStart &&
+      (block.type === "heading" || block.type === "numbered_list" || block.type === "list" || block.type === "blockquote")
+    ) {
       event.preventDefault();
       onChange(block.id, { type: "paragraph" });
       return;
@@ -87,14 +112,12 @@ export function EditorBlock({ block, onChange, onEnter, onRemove, onPasteBlocks,
 
   const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = event.clipboardData.getData("text");
-
-    // If single line without markdown block syntax, allow default paste
     const trimmed = pastedText.trim();
     const hasMultipleLines = pastedText.includes("\n");
-    const hasBlockMarkdown = /^#{1,3}\s|^[-*]\s|^-\s*\[/.test(trimmed);
+    const hasBlockMarkdown = /^#{1,3}\s|^[-*]\s|^\d+\.\s|^>\s|^-?\s*\[/.test(trimmed);
 
     if (!hasMultipleLines && !hasBlockMarkdown) {
-      return; // let default paste happen
+      return;
     }
 
     event.preventDefault();
@@ -102,33 +125,50 @@ export function EditorBlock({ block, onChange, onEnter, onRemove, onPasteBlocks,
     onPasteBlocks?.(block.id, blocks);
   };
 
+  const resetCheckAnimation = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = e.currentTarget;
+    btn.classList.remove("check-pop");
+    void btn.offsetWidth;
+    btn.classList.add("check-pop");
+  };
+
   return (
-    <div className={cn("group flex min-h-8 items-start gap-1.5 rounded-xl px-0.5 transition duration-150", block.type === "heading" && "mt-1 mb-1", isSelectAll && "bg-[rgba(59,130,246,0.08)]")}>
+    <div
+      className={cn(
+        "group flex min-h-8 items-start gap-2 py-[0.1rem] transition",
+        block.type === "blockquote" && "pr-3 border-r-[3px] border-accent/40 bg-accent/[0.04] rounded-l-lg",
+        isSelectAll && "rounded-md bg-[rgba(255,159,10,0.1)]"
+      )}
+    >
+      {/* Block indicator */}
       {block.type === "check" ? (
         <button
           type="button"
           aria-label={block.checked ? "مهمة مكتملة" : "مهمة غير مكتملة"}
-          onClick={() => onChange(block.id, { checked: !block.checked })}
+          onClick={(e) => {
+            onChange(block.id, { checked: !block.checked });
+            if (!block.checked) resetCheckAnimation(e);
+          }}
           className={cn(
-            "focus-ring mt-[0.35rem] grid h-5 w-5 shrink-0 place-items-center rounded-full border transition active:scale-90",
+            "focus-ring mt-[0.4rem] grid h-[1.35rem] w-[1.35rem] shrink-0 place-items-center rounded-full border-2 transition-all duration-200 active:scale-90",
             block.checked
-              ? "border-white/0 bg-[#2f8f56] text-white"
-              : "border-white/20 bg-white/[0.04] text-transparent hover:border-white/35"
+              ? "border-positive bg-positive text-white scale-100"
+              : "border-white/25 bg-transparent text-transparent hover:border-white/40"
           )}
         >
-          <Check size={11} strokeWidth={3} />
+          <Check size={11} strokeWidth={3.5} />
         </button>
       ) : block.type === "list" ? (
-        <span className="mt-[0.55rem] grid h-5 w-5 shrink-0 place-items-center text-white/35">
-          <Minus size={14} />
+        <span className="mt-[0.58rem] grid h-[1.35rem] w-[1.35rem] shrink-0 place-items-center text-white/25">
+          <Minus size={16} strokeWidth={2.5} />
         </span>
-      ) : block.type === "heading" ? (
-        <span className="mt-[0.55rem] grid h-5 w-5 shrink-0 place-items-center text-white/20">
-          <span className="h-2 w-2 rounded-full bg-current" />
+      ) : block.type === "numbered_list" ? (
+        <span className="mt-[0.5rem] grid h-[1.35rem] min-w-[1.35rem] shrink-0 place-items-center text-[0.78rem] font-medium text-white/35 tabular-nums">
+          {listNumber ?? 1}.
         </span>
       ) : (
-        <span className="mt-[0.55rem] grid h-5 w-5 shrink-0 place-items-center text-transparent">
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        <span className="mt-[0.58rem] grid h-[1.35rem] w-[1.35rem] shrink-0 place-items-center text-transparent select-none">
+          &#8203;
         </span>
       )}
 
@@ -142,20 +182,29 @@ export function EditorBlock({ block, onChange, onEnter, onRemove, onPasteBlocks,
         rows={1}
         placeholder={
           block.type === "heading"
-            ? "اكتب عنوان..."
+            ? isFirst ? "عنوان" : "عنوان..."
             : block.type === "check"
               ? "مهمة جديدة..."
               : block.type === "list"
                 ? "عنصر قائمة..."
-                : "اكتب نصك هنا..."
+                : block.type === "numbered_list"
+                  ? "عنصر مرقم..."
+                  : block.type === "blockquote"
+                    ? "اقتباس..."
+                    : isFirst
+                      ? "ابدأ الكتابة..."
+                      : "اكتب هنا..."
         }
         className={cn(
-          "min-h-8 flex-1 overflow-hidden bg-transparent py-[0.35rem] text-right outline-none transition-colors placeholder:text-white/20",
+          "min-h-8 flex-1 overflow-hidden bg-transparent py-[0.4rem] text-right outline-none placeholder:text-white/18",
           block.type === "heading"
-            ? "text-[calc(1.15rem*var(--note-font-scale))] font-bold leading-[calc(1.85rem*var(--note-line-height-scale))] text-white/92"
-            : "text-[calc(0.96rem*var(--note-font-scale))] font-normal leading-[calc(1.6rem*var(--note-line-height-scale))] text-white/80",
-          block.checked && "text-white/30 line-through",
-          isSelectAll && "bg-[rgba(59,130,246,0.06)]"
+            ? isFirst
+              ? "text-[1.45rem] font-bold leading-[1.85rem] text-white/92 tracking-tight"
+              : "text-[calc(1.1rem*var(--note-font-scale))] font-bold leading-[calc(1.75rem*var(--note-line-height-scale))] text-white/88"
+            : block.type === "blockquote"
+              ? "text-[calc(0.96rem*var(--note-font-scale))] italic leading-[calc(1.6rem*var(--note-line-height-scale))] text-white/58"
+              : "text-[calc(0.96rem*var(--note-font-scale))] font-normal leading-[calc(1.6rem*var(--note-line-height-scale))] text-white/80",
+          block.checked && "text-white/30 line-through"
         )}
       />
     </div>

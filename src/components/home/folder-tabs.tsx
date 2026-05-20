@@ -20,8 +20,8 @@ export function FolderTabs() {
             className={cn(
               "focus-ring min-h-12 shrink-0 rounded-full border px-4 text-sm font-medium transition duration-200 ease-material active:scale-[0.98]",
               active
-                ? "border-transparent bg-leaf-600 text-white shadow-sm"
-                : "border-black/[0.08] bg-white/70 text-ink-700 dark:border-white/10 dark:bg-white/[0.07] dark:text-ink-50"
+                ? "border-transparent bg-positive text-white shadow-sm"
+                : "border-white/[0.08] bg-white/[0.06] text-white/60"
             )}
           >
             <span

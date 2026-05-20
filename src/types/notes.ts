@@ -1,4 +1,4 @@
-export type BlockType = "paragraph" | "heading" | "list" | "check";
+export type BlockType = "paragraph" | "heading" | "list" | "numbered_list" | "check" | "blockquote";
 
 export type NoteBlock = {
   id: string;

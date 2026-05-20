@@ -44,23 +44,28 @@ export function normalizeBlockFromText(block: NoteBlock): NoteBlock {
     return { ...block, type: "heading", text: value.replace(/^#\s*/, "") };
   }
 
-  // Check: - [ ] text or - [x] text
-  if (value.startsWith("- [ ] ")) {
-    return { ...block, type: "check", checked: false, text: value.replace(/^- \[ \]\s*/, "") };
+  // Check: - [ ] text or - [x] text or [] text
+  if (value.startsWith("- [ ] ") || value.startsWith("[] ")) {
+    return { ...block, type: "check", checked: false, text: value.replace(/^(- \[ \]|\[\])\s*/, "") };
   }
 
-  if (value.startsWith("- [x] ") || value.startsWith("- [X] ")) {
-    return { ...block, type: "check", checked: true, text: value.replace(/^- \[[xX]\]\s*/, "") };
+  if (value.startsWith("- [x] ") || value.startsWith("- [X] ") || value.startsWith("[x] ") || value.startsWith("[X] ")) {
+    return { ...block, type: "check", checked: true, text: value.replace(/^(- \[[xX]\]|\[[xX]\])\s*/, "") };
   }
 
-  // List: - text
-  if (value.startsWith("- ")) {
-    return { ...block, type: "list", text: value.replace(/^-\s*/, "") };
+  // Numbered list: 1. text
+  if (/^\d+\.\s/.test(value)) {
+    return { ...block, type: "numbered_list", text: value.replace(/^\d+\.\s*/, "") };
   }
 
-  // If block was a heading but user removed the #, convert back to paragraph
-  if (block.type === "heading" && !value.startsWith("# ")) {
-    return { ...block, type: "paragraph" };
+  // List: - text or * text
+  if (/^[-*]\s+/.test(value)) {
+    return { ...block, type: "list", text: value.replace(/^[-*]\s+/, "") };
+  }
+
+  // Blockquote: > text
+  if (value.startsWith("> ")) {
+    return { ...block, type: "blockquote", text: value.replace(/^>\s*/, "") };
   }
 
   return block;
@@ -73,6 +78,26 @@ export function createBlock(type: NoteBlock["type"] = "paragraph", text = ""): N
     text,
     checked: type === "check" ? false : undefined
   };
+}
+
+export function getNextNumberedListNumber(blocks: NoteBlock[], blockId: string): string {
+  const index = blocks.findIndex((block) => block.id === blockId);
+  if (index < 0) return "1";
+  for (let i = index; i >= 0; i--) {
+    if (blocks[i].type !== "numbered_list") return "1";
+    if (blocks[i].id === blockId && blocks[i].text.length > 0) {
+      const currentMatch = blocks[i].text.match(/^(\d+)\.\s/);
+      if (!currentMatch) {
+        for (let j = i - 1; j >= 0; j--) {
+          if (blocks[j].type !== "numbered_list") return "1";
+          const prevMatch = blocks[j].text.match(/^(\d+)\.\s/);
+          if (prevMatch) return String(Number(prevMatch[1]) + 1);
+        }
+      }
+      return String(i - index + 1);
+    }
+  }
+  return "1";
 }
 
 export function parseMarkdownToBlocks(text: string): NoteBlock[] {
@@ -91,29 +116,38 @@ export function parseMarkdownToBlocks(text: string): NoteBlock[] {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Empty line = paragraph break
     if (!trimmed) {
       flushParagraph();
       continue;
     }
 
-    // Heading: # text or ## text or ### text
+    // Heading
     if (/^#{1,3}\s+/.test(trimmed)) {
       flushParagraph();
       blocks.push(createBlock("heading", trimmed.replace(/^#{1,3}\s+/, "")));
     }
-    // Check: - [ ] text or - [x] text
-    else if (/^-\s*\[[ xX]\]\s*/.test(trimmed)) {
+    // Check
+    else if (/^[-[]\s*\[[ xX]\]\s*/.test(trimmed) || /^\[\]\s*/.test(trimmed)) {
       flushParagraph();
-      const checked = trimmed.match(/^-\s*\[([ xX])\]/)?.[1]?.toLowerCase() === "x";
-      blocks.push({ ...createBlock("check"), checked, text: trimmed.replace(/^-\s*\[[ xX]\]\s*/, "") });
+      const checked = /\[[xX]\]/.test(trimmed);
+      blocks.push({ ...createBlock("check"), checked, text: trimmed.replace(/^[-[]?\s*\[[ xX]\]\s*/, "") });
     }
-    // List: - text or * text
+    // Numbered list
+    else if (/^\d+\.\s+/.test(trimmed)) {
+      flushParagraph();
+      blocks.push(createBlock("numbered_list", trimmed.replace(/^\d+\.\s+/, "")));
+    }
+    // List
     else if (/^[-*]\s+/.test(trimmed)) {
       flushParagraph();
       blocks.push(createBlock("list", trimmed.replace(/^[-*]\s+/, "")));
     }
-    // Regular line
+    // Blockquote
+    else if (trimmed.startsWith("> ")) {
+      flushParagraph();
+      blocks.push(createBlock("blockquote", trimmed.replace(/^>\s*/, "")));
+    }
+    // Paragraph line
     else {
       currentParagraph.push(line);
     }

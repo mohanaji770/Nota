@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AppProviders } from "@/components/layout/app-providers";
+import { ErrorBoundary } from "@/components/layout/error-boundary";
 import { APP_NAME, APP_NAME_AR } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -29,14 +30,16 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
-  themeColor: "#151515"
+  themeColor: "#111110"
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body>
-        <AppProviders>{children}</AppProviders>
+        <ErrorBoundary>
+          <AppProviders>{children}</AppProviders>
+        </ErrorBoundary>
       </body>
     </html>
   );
