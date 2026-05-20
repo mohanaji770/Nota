@@ -45,12 +45,12 @@ export function normalizeBlockFromText(block: NoteBlock): NoteBlock {
   }
 
   // Check: - [ ] text or - [x] text or [] text
-  if (value.startsWith("- [ ] ") || value.startsWith("[] ")) {
-    return { ...block, type: "check", checked: false, text: value.replace(/^(- \[ \]|\[\])\s*/, "") };
+  if (value.startsWith("- [ ] ") || value.startsWith("[] ") || value.startsWith("-[] ")) {
+    return { ...block, type: "check", checked: false, text: value.replace(/^(- \[ \]|\[\]|-\[\])\s*/, "") };
   }
 
-  if (value.startsWith("- [x] ") || value.startsWith("- [X] ") || value.startsWith("[x] ") || value.startsWith("[X] ")) {
-    return { ...block, type: "check", checked: true, text: value.replace(/^(- \[[xX]\]|\[[xX]\])\s*/, "") };
+  if (value.startsWith("- [x] ") || value.startsWith("- [X] ") || value.startsWith("[x] ") || value.startsWith("[X] ") || value.startsWith("-[x] ") || value.startsWith("-[X] ")) {
+    return { ...block, type: "check", checked: true, text: value.replace(/^(- \[[xX]\]|\[[xX]\]|-\[[xX]\])\s*/, "") };
   }
 
   // Numbered list: 1. text

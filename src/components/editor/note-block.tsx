@@ -135,10 +135,9 @@ export function EditorBlock({ block, isFirst, listNumber, onChange, onEnter, onR
   return (
     <div
       className={cn(
-        "group flex min-h-7 items-start gap-2 py-0 transition",
+        "group flex min-h-6 items-start gap-1.5 py-0 transition",
         block.type === "blockquote" && "pr-3 border-r-[3px] border-accent/40 bg-accent/[0.04] rounded-l-lg",
-        block.type === "heading" && !isFirst && "mt-1",
-        block.type === "heading" && isFirst && "pb-0.5",
+        block.type === "heading" && !isFirst && "mt-0.5",
         isSelectAll && "rounded-md bg-[rgba(255,159,10,0.1)]"
       )}
     >
@@ -152,7 +151,7 @@ export function EditorBlock({ block, isFirst, listNumber, onChange, onEnter, onR
             if (!block.checked) resetCheckAnimation(e);
           }}
           className={cn(
-            "focus-ring mt-[0.35rem] grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition-all duration-200 active:scale-90",
+            "focus-ring mt-[0.25rem] grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 transition-all duration-200 active:scale-90",
             block.checked
               ? "border-positive bg-positive text-white scale-100"
               : "border-white/25 bg-transparent text-transparent hover:border-white/40"
@@ -161,15 +160,15 @@ export function EditorBlock({ block, isFirst, listNumber, onChange, onEnter, onR
           <Check size={11} strokeWidth={3.5} />
         </button>
       ) : block.type === "list" ? (
-        <span className="mt-[0.5rem] grid h-5 w-5 shrink-0 place-items-center text-white/25">
-          <Minus size={14} strokeWidth={2.5} />
+        <span className="mt-[0.4rem] grid h-4 w-4 shrink-0 place-items-center text-white/25">
+          <Minus size={12} strokeWidth={2.5} />
         </span>
       ) : block.type === "numbered_list" ? (
-        <span className="mt-[0.45rem] grid h-5 min-w-[1.35rem] shrink-0 place-items-center text-[0.78rem] font-medium text-white/35 tabular-nums">
+        <span className="mt-[0.35rem] grid h-4 min-w-5 shrink-0 place-items-center text-[0.72rem] font-medium text-white/35 tabular-nums">
           {listNumber ?? 1}.
         </span>
       ) : (
-        <span className="mt-[0.5rem] grid h-5 w-5 shrink-0 place-items-center text-transparent select-none">
+        <span className="mt-[0.4rem] grid h-4 w-4 shrink-0 place-items-center text-transparent select-none">
           &#8203;
         </span>
       )}
@@ -196,7 +195,7 @@ export function EditorBlock({ block, isFirst, listNumber, onChange, onEnter, onR
                     : "ابدأ الكتابة..."
         }
         className={cn(
-          "min-h-7 flex-1 overflow-hidden bg-transparent py-[0.35rem] text-right outline-none placeholder:text-white/18",
+          "min-h-6 flex-1 overflow-hidden bg-transparent py-[0.2rem] text-right outline-none placeholder:text-white/18",
           block.type === "heading"
             ? isFirst
               ? "text-[1.45rem] font-bold leading-[1.85rem] text-white/92 tracking-tight"
