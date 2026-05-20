@@ -76,7 +76,7 @@ export function HabitsScreen() {
         </div>
       </header>
 
-      <section className="mt-4 rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+      <section className="mt-4 rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
         {notificationPermission !== "granted" ? (
           <button
             type="button"
@@ -136,7 +136,7 @@ export function HabitsScreen() {
           </div>
         ) : (
           habits.map((habit) => (
-            <article key={habit.id} className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+            <article key={habit.id} className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <input

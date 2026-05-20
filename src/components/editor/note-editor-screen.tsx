@@ -205,7 +205,7 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
   return (
     <main className="adaptive-tonal mx-auto flex min-h-[100dvh] w-full max-w-[620px] flex-col bg-surface pb-[calc(108px+var(--safe-bottom))] pt-[var(--safe-top)] text-white dark:bg-surface-dark">
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-white/[0.07] bg-surface/90 px-3 pt-[calc(8px+var(--safe-top))] backdrop-blur-xl dark:bg-surface-dark/90">
+      <header className="sticky top-0 z-20 border-b border-white/[0.07] bg-surface/90 px-3 pt-[calc(8px+var(--safe-top))] shadow-sm backdrop-blur-xl dark:bg-surface-dark/90">
         <div className="flex min-h-14 items-center gap-1">
           <IconButton label="رجوع" onClick={() => router.push("/")} className="text-white/55">
             <ArrowRight size={22} />
@@ -229,7 +229,7 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
 
       {/* Menu */}
       {menuOpen ? (
-        <div className="fixed right-[max(14px,calc((100vw-620px)/2+14px))] top-[calc(70px+var(--safe-top))] z-30 w-52 rounded-2xl bg-white/[0.96] p-2 text-[0.8rem] font-semibold text-black/76 shadow-2xl ring-1 ring-black/[0.07] backdrop-blur-xl dark:bg-[#1c1c1e]/95 dark:text-white/76 dark:ring-white/[0.07]">
+        <div className="fixed right-[max(14px,calc((100vw-620px)/2+14px))] top-[calc(70px+var(--safe-top))] z-30 w-52 rounded-2xl bg-white/[0.96] p-2 text-[0.8rem] font-semibold text-black/76 shadow-lg ring-1 ring-black/[0.07] backdrop-blur-xl dark:bg-[#1c1c1e]/95 dark:text-white/76 dark:ring-white/[0.07]">
           <button
             type="button"
             onClick={() => addQuickBlock("paragraph")}
@@ -297,7 +297,7 @@ export function NoteEditorScreen({ noteId }: { noteId: string }) {
 
       {/* Editor */}
       <section className="flex-1 px-5 py-4" aria-label="محرر الملاحظة">
-        <div className="mx-auto max-w-prose space-y-0">
+        <div className="mx-auto max-w-prose space-y-0.5">
           {draft.blocks.map((block, i) => {
             let listNumber = 1;
             if (block.type === "numbered_list") {

@@ -178,7 +178,7 @@ export function HomeScreen() {
           type="button"
           onClick={() => router.push("/settings")}
           aria-label="الإعدادات"
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 ring-1 ring-white/[0.06] transition active:scale-95"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 shadow-sm ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <Settings2 size={18} />
         </button>
@@ -186,7 +186,7 @@ export function HomeScreen() {
           type="button"
           onClick={handleCreate}
           aria-label="إنشاء ملاحظة جديدة"
-          className="grid h-12 w-[68px] place-items-center rounded-2xl bg-white/[0.08] text-white/76 ring-1 ring-white/[0.06] transition active:scale-95"
+          className="grid h-12 w-[68px] place-items-center rounded-2xl bg-white/[0.08] text-white/76 shadow-sm ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <Plus size={24} />
         </button>
@@ -194,7 +194,7 @@ export function HomeScreen() {
           type="button"
           onClick={() => router.push("/habits")}
           aria-label="العادات"
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 ring-1 ring-white/[0.06] transition active:scale-95"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 shadow-sm ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <ListChecks size={18} />
         </button>
@@ -202,7 +202,7 @@ export function HomeScreen() {
           type="button"
           onClick={() => setSearchOpen((value) => !value)}
           aria-label="بحث"
-          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 ring-1 ring-white/[0.06] transition active:scale-95"
+          className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/52 shadow-sm ring-1 ring-white/[0.06] transition active:scale-95"
         >
           <Search size={19} />
         </button>

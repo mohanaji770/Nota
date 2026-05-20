@@ -66,7 +66,7 @@ export function SettingsScreen() {
 
       <section className="mt-4 space-y-4">
         {/* Theme */}
-        <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+        <div className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
           <div className="flex items-center gap-2">
             <Palette size={16} className="text-white/35" />
             <h2 className="text-[0.86rem] font-bold text-white/78">المظهر</h2>
@@ -92,7 +92,7 @@ export function SettingsScreen() {
         </div>
 
         {/* Line Height */}
-        <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+        <div className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Type size={16} className="text-white/35" />
@@ -119,7 +119,7 @@ export function SettingsScreen() {
         </div>
 
         {/* Font Size */}
-        <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+        <div className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Type size={16} className="text-white/35" />
@@ -146,7 +146,7 @@ export function SettingsScreen() {
         </div>
 
         {/* Font Family */}
-        <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+        <div className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
           <div className="flex items-center gap-2">
             <Type size={16} className="text-white/35" />
             <h2 className="text-[0.86rem] font-bold text-white/78">نوع الخط</h2>
@@ -177,7 +177,7 @@ export function SettingsScreen() {
         </div>
 
         {/* Supabase */}
-        <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+        <div className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
           <button
             type="button"
             onClick={() => setSupabaseOpen((value) => !value)}
@@ -234,7 +234,7 @@ export function SettingsScreen() {
         </div>
 
         {/* Backup */}
-        <div className="rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/[0.07]">
+        <div className="rounded-2xl bg-white/[0.06] p-4 shadow-sm ring-1 ring-white/[0.07]">
           <div className="flex items-center gap-2">
             <Upload size={16} className="text-white/35" />
             <h2 className="text-[0.86rem] font-bold text-white/78">النسخ الاحتياطي</h2>
